@@ -18,7 +18,7 @@ function httpGet(url) {
     });
 }
 
-httpGet("https://market-helper.herokuapp.com/api")
+httpGet("/api")
     .then(
         response = function(response){console.log(response)},
         error = function() {console.log('Rejected')}
