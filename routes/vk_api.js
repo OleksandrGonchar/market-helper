@@ -4,18 +4,23 @@ var router = express.Router();
  * Should c Contain object with structure
  * {appId: Number,
  * secretTocken: Number}
-*/
+ */
 var allIdGroups = [];
 
+const updateTime = 1000 * 60 * 60;//1 hour
+
+setInterval(function () {
+    console.log('Current time is - ' + new Date())
+}, updateTime);
+
 /* POST home page. */
-router.post('/', function(req, res, next) {
+router.post('/setNewGroup', function (req, res, next) {
     console.log(typeof (req.body));
     try {
-        if(typeof req.body == 'object') {
-            console.log(req.body);
+        if (typeof req.body == 'object' && req.body.appId && req.body.secretTocken) {
             allIdGroups.push(req.body);
-            res.render('index', { title: 'Express' });
         }
+        res.render('index', {title: 'Express'});
     } catch (e) {
         console.log(e);
         res.json('New Error');
@@ -24,11 +29,9 @@ router.post('/', function(req, res, next) {
 
 
 /* GET home page. */
-router.get('/', function(req, res, next) {
+router.get('/', function (req, res, next) {
     res.setHeader('Content-Type', 'application/json');
-    res.json(JSON.stringify(allIdGroups));
+    res.json(allIdGroups);
 });
-
-
 
 module.exports = router;
