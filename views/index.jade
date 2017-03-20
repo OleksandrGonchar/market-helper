@@ -1,5 +1,10 @@
 extends layout
 
 block content
-  h1= title
   p Welcome to #{title}
+  p Why don't work?
+
+  form#userFataForm(method="post", action="/api")
+   input(type="number", placeholder="your app Id", name="appId")
+   input(type="number", placeholder="your secret token", name="secretTocken")
+   input(type="submit")
