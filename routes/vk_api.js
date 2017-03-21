@@ -1,20 +1,20 @@
-var express = require('express');
-var router = express.Router();
+let express = require('express');
+let router = express.Router();
 /**
  * Should c Contain object with structure
  * {appId: Number,
  * secretTocken: Number}
  */
-var allIdGroups = [];
+let allIdGroups = [];
 
 const updateTime = 1000 * 60 * 60;//1 hour
 
-setInterval(function () {
+setInterval( ()=> {
     console.log('Current time is - ' + new Date())
 }, updateTime);
 
 /* POST home page. */
-router.post('/setNewGroup', function (req, res, next) {
+router.post('/setNewGroup', (req, res, next) => {
     console.log(typeof (req.body));
     try {
         if (typeof req.body == 'object' && req.body.appId && req.body.secretTocken) {
@@ -29,7 +29,7 @@ router.post('/setNewGroup', function (req, res, next) {
 
 
 /* GET home page. */
-router.get('/', function (req, res, next) {
+router.get('/', (req, res, next) => {
     res.setHeader('Content-Type', 'application/json');
     res.json(allIdGroups);
 });
