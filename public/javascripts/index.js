@@ -45,10 +45,23 @@ httpGet("/api")
         error = function() {console.log('Rejected')}
 );
 
-document.addEventListener('DOMContentLoaded', function(){
-    var button = document.getElementById('submit');
+function getSavedUsers() {
+    httpGet("/api")
+    .then(
+        response = function(response){console.log(response)},
+        error = function(e) {
+            console.log('Rejected ', e)
+        }
+    );
+};
 
-    button.addEventListener('click', function(e){
+document.addEventListener('DOMContentLoaded', function(){
+    var buttonSetData = document.getElementById('submit');
+    var buttonShowData = document.getElementById('load');
+
+    buttonShowData.addEventListener('click', getSavedUsers);
+
+    buttonSetData.addEventListener('click', function(e){
         e.preventDefault();
         var appId = document.getElementById('appId').value;
         var secretTocken = document.getElementById('secretTocken').value;
