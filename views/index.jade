@@ -5,9 +5,9 @@ block content
   p Why don't work?
 
   form#userFataForm(method="post", action="/api/setNewGroup")
-   input(type="number", placeholder="your app Id", name="appId")
-   input(type="number", placeholder="your secret token", name="secretTocken")
-   input(type="submit", value="WTF")
+   input(id="appId", type="number", placeholder="your app Id", name="appId")
+   input(id="secretTocken", type="number", placeholder="your secret token", name="secretTocken")
+   input(type="submit", value="WTF", id="submit")
 
    div
     a(href="https://oauth.vk.com/authorize?client_id=5921093&display=page&redirect_uri=https://market-helper.herokuapp.com&scope=friends&response_type=token&v=5.63", title="Register linck") Link

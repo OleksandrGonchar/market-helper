@@ -1,5 +1,7 @@
 let express = require('express');
 let router = express.Router();
+const mongodb = require('mongodb').MongoClient;
+const conectUrl = 'mongodb://market-helper:123456@ds133981.mlab.com:33981/market-helper';
 /**
  * Should c Contain object with structure
  * {appId: Number,
@@ -15,9 +17,9 @@ setInterval( ()=> {
 
 /* POST home page. */
 router.post('/setNewGroup', (req, res, next) => {
-    console.log(typeof (req.body));
+    console.log(typeof (req.body), '\n', req.body);
     try {
-        if (typeof req.body == 'object' && req.body.appId && req.body.secretTocken) {
+        if (typeof req.body == 'object' && req.body['appId'] && req.body['secretTocken']) {
             allIdGroups.push(req.body);
         }
         res.render('index', {title: 'Express'});
