@@ -1,7 +1,7 @@
 let express = require('express');
 let router = express.Router();
 const mongodb = require('mongodb').MongoClient;
-const conectUrl = 'mongodb://market-helper:123456@ds133981.mlab.com:33981/market-helper';
+const conectUrl = 'mongodb://market-admin:789456123@ds133981.mlab.com:33981/market-helper';
 const fileSistem = require('./fileSistem');
 
 fileSistem.read('test.json').then(function(e){
@@ -35,6 +35,45 @@ router.post('/setNewGroup', (req, res, next) => {
     }
 });
 
+function loadDataLoad (err, data){ 
+    if(err) {
+        console.log(err);
+    } else {
+        console.log('success: ' ,  data);
+    }
+};
+
+function readDataFromDb (url, loadDataLoad) {
+    mongodb.connect(url, (err, db) => {
+        let collection = db.collection('items');
+        collection.find({}, {})
+            .toArray(loadDataLoad);
+
+    });
+};
+
+/** Load data from db **/
+router.post('/db', (req, res, next) => {
+    if (typeof req.body !== 'object' && !req.body.user && !req.body.key) {
+        return console.log('Error: empty pass or username');
+    }
+
+    let key = req.body.key.trim();
+    let user = req.body.user.trim();
+    let url = 'mongodb://' + user + 
+        ':' + key + '@ds133981.mlab.com:33981/market-helper';
+
+    readDataFromDb(url, (err, data) => {
+        if (err) {
+            console.log(err);
+        } else {
+            res.setHeader('Content-Type', 'application/json');
+            res.json(data);
+        }
+    })
+});
+
+readDataFromDb(conectUrl, loadDataLoad);
 
 /* GET home page. */
 router.get('/', (req, res, next) => {
