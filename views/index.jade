@@ -5,15 +5,10 @@ block content
   p Why don't work?
 
   form#userFataForm(method="post", action="/api/setNewGroup")
-    input(id="appId", type="number", placeholder="your app Id", name="appId")
-    input(id="secretTocken", type="number", placeholder="your secret token", name="secretTocken")
-    input(type="submit", value="WTF", id="submit")
-  
     p
-      input(id="load", value="load data", type="button")
+      input(id="userName", type="text", placeholder="database user", name="userName")
+      input(id="userPassword", type="password", placeholder="database password", name="userPassword")
     p
-      input(id="userName", type="text", placeholder="user", name="userName")
-      input(id="userPassword", type="password", placeholder="password", name="userPassword")
       input(id="loadDB", value="load data from DB", type="button")
       
 

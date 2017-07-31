@@ -1,23 +1,3 @@
-function httpGet(url) {
-    return new Promise(function (resolve, reject) {
-        var xhr = new XMLHttpRequest();
-        xhr.open('GET', url, true);
-        xhr.onload = function () {
-            if (this.status == 200) {
-                resolve(this.response);
-            } else {
-                var error = new Error(this.statusText);
-                error.code = this.status;
-                reject(error);
-            }
-        };
-        xhr.onerror = function () {
-            reject(new Error("Network Error"));
-        };
-        xhr.send();
-    });
-}
-
 function setUser(data) {
     return new Promise(function (resolve, reject) {
         var xhr = new XMLHttpRequest();
@@ -60,22 +40,6 @@ function getFromDB(url, data) {
     });
 };
 
-httpGet("/api")
-    .then(
-        response = function(response){console.log(response)},
-        error = function() {console.log('Rejected')}
-);
-
-function getSavedUsers() {
-    httpGet("/api")
-    .then(
-        response = function(response){console.log(response)},
-        error = function(e) {
-            console.log('Rejected ', e)
-        }
-    );
-};
-
 function getDataFromDB() {
     var userName = document.getElementById('userName').value;
     var userPassword = document.getElementById('userPassword').value;
@@ -92,21 +56,9 @@ function getDataFromDB() {
     );
 };
 
-document.addEventListener('DOMContentLoaded', function(){
-    var buttonSetData = document.getElementById('submit');
-    var buttonShowData = document.getElementById('load');
+document.addEventListener('DOMContentLoaded', function(e){
+    e.preventDefault();
     var buttonShowDBData = document.getElementById('loadDB');
 
-    buttonShowData.addEventListener('click', getSavedUsers);
     buttonShowDBData.addEventListener('click', getDataFromDB);
-
-    buttonSetData.addEventListener('click', function(e){
-        e.preventDefault();
-        var appId = document.getElementById('appId').value;
-        var secretTocken = document.getElementById('secretTocken').value;
-        setUser({
-            'appId': appId,
-            'secretTocken': secretTocken
-        });
-    });
 });
