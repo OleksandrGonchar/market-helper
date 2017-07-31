@@ -1,7 +1,6 @@
 let express = require('express');
 let router = express.Router();
 const mongodb = require('mongodb').MongoClient;
-const conectUrl = 'mongodb://market-admin:789456123@ds133981.mlab.com:33981/market-helper';
 const fileSistem = require('./fileSistem');
 
 fileSistem.read('test.json').then(function(e){
@@ -48,7 +47,6 @@ function readDataFromDb (url, loadDataLoad) {
         let collection = db.collection('items');
         collection.find({}, {})
             .toArray(loadDataLoad);
-
     });
 };
 
@@ -72,8 +70,6 @@ router.post('/db', (req, res, next) => {
         }
     })
 });
-
-readDataFromDb(conectUrl, loadDataLoad);
 
 /* GET home page. */
 router.get('/', (req, res, next) => {
