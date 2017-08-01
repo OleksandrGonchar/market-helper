@@ -1,18 +1,23 @@
 const mongodb = require('mongodb').MongoClient;
 
-function readDataFromDb(url, loadDataLoad) {
-    mongodb.connect(url, (err, db) => {
-        if (err) {
-            loadDataLoad(err);
-            return err;
-        } else {
-            let collection = db.collection('items');
-            collection.find({}, {})
-                .toArray(loadDataLoad);
-        }
-    });
+function readDataFromDb(url) {
+    return new Promise(function (resolve, reject) {
+        mongodb.connect(url, (err, db) => {
+            if (err) {
+                reject(err);
+            } else {
+                let collection = db.collection('items');
+                resolve(collection.find({}, {}).toArray());
+            }
+        });
+    })
 };
 
+function setItemToCollection() {
+
+}
+
 module.exports = {
-    read: readDataFromDb
+    read: readDataFromDb,
+    set: setItemToCollection
 };
