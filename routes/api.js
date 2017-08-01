@@ -2,8 +2,6 @@ const express = require('express');
 const router = express.Router();
 const mongo = require('./database');
 
-router.post('/setData', databaseFlow);
-
 /** Load data from db **/
 router.post('/database', databaseFlow);
 router.delete('/database', deleteDataFromDatabase);
