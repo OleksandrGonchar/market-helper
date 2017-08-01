@@ -42,7 +42,7 @@ router.post('/db', (req, res, next) => {
 
 
     readDataFromDb(url, (err, data) => {
-        console.log(url)
+        console.log(url);
         if (err) {
             console.log(err);
         } else {
