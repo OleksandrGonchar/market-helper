@@ -15,14 +15,13 @@ function readDataFromDb(url) {
 };
 
 function setItemToCollection(url, data) {
-    console.log(url, data);
     return new Promise((resolve, reject) => {
         mongodb.connect(url, (err, db) => {
-            if(err) {
+            if (err) {
                 console.log(err);
             } else {
                 db.collection(collectionName).insert(
-                    data,
+                    {"name": data},
                     (err, result) => {
                         console.log(err, result);
                         if (err) {
@@ -36,7 +35,25 @@ function setItemToCollection(url, data) {
     })
 }
 
+function deleteCollection(url, name) {
+    return new Promise((resolve, reject) => {
+        mongodb.connect(url, (err, db) => {
+            db.collection(collectionName).remove(
+                {"name": name},
+                (err, result) => {
+                    if (err) {
+                        reject('err');
+                    } else {
+                        resolve(result);
+                    }
+                });
+
+        });
+    })
+}
+
 module.exports = {
     read: readDataFromDb,
-    set: setItemToCollection
+    set: setItemToCollection,
+    delete: deleteCollection
 };

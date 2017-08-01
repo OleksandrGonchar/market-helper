@@ -12,7 +12,7 @@ block content
     p
       input(id="loadDB", value="load data from DB", type="button")
 
-    h4 Set datap
+    h4 Set data
     p
       input(id="userNameSet", type="text", placeholder="database user", name="userNameSet")
       input(id="userPasswordSet", type="password", placeholder="database password", name="userPasswordSet")
@@ -21,6 +21,16 @@ block content
     p
       input(id="setdDB", value="Set data to DB", type="button")
 
-      
+    h4 Delete data
+    p
+      input(id="userNameDelete", type="text", placeholder="database user", name="userNameDelete")
+      input(id="userPasswordDelete", type="password", placeholder="database password", name="userPasswordDelete")
+    p
+      input(id="inputDataDelete", type="text", placeholder="name or index for db", name="inputData")
+    p
+      input(id="DeletedDB", value="Delete data to DB", type="button")
 
-   script(src="/javascripts/index.js")
+
+
+
+  script(src="/javascripts/index.js")

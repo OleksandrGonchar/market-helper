@@ -19,10 +19,10 @@ function setUser(data) {
     });
 };
 
-function postToDatabase(url, data) {
+function postToDatabase(url, data, method) {
     return new Promise(function (resolve, reject) {
         var xhr = new XMLHttpRequest();
-        xhr.open('POST', url, true);
+        xhr.open(method, url, true);
         xhr.setRequestHeader('Content-type', 'application/json; charset=utf-8');
         xhr.onload = function () {
             if (this.status == 200) {
@@ -44,10 +44,10 @@ function getDataFromDB() {
     var userName = document.getElementById('userName').value;
     var userPassword = document.getElementById('userPassword').value;
 
-    postToDatabase('/api/loadData', {
+    postToDatabase('/api/database', {
         'user': userName,
         'key': userPassword
-    }).then(
+    }, 'POST').then(
         response = function(response){console.log('Data load: ', response)},
         error = function(e) {
             console.log('Rejected ', e)
@@ -60,13 +60,28 @@ function setDataClickListener() {
     var userPassword = document.getElementById('userPasswordSet').value;
     var data = document.getElementById('inputData').value;
 
-    postToDatabase('/api/setData', {
+    postToDatabase('/api/database', {
         'user': userName,
         'key': userPassword,
-        'data': {
-            'name': data
+        'data': data
+    }, 'POST').then(
+        response = function(response){console.log('Data save: ', response)},
+        error = function(e) {
+            console.log('Rejected ', e)
         }
-    }).then(
+    );
+};
+
+function deleteDataClickListener() {
+    var userName = document.getElementById('userNameDelete').value;
+    var userPassword = document.getElementById('userPasswordDelete').value;
+    var data = document.getElementById('inputDataDelete').value;
+
+    postToDatabase('/api/database', {
+        'user': userName,
+        'key': userPassword,
+        'data': data
+    }, 'DELETE').then(
         response = function(response){console.log('Data save: ', response)},
         error = function(e) {
             console.log('Rejected ', e)
@@ -78,7 +93,9 @@ document.addEventListener('DOMContentLoaded', function(e){
     e.preventDefault();
     var buttonShowDBData = document.getElementById('loadDB');
     var buttonSetDBData = document.getElementById('setdDB');
+    var buttonDeleteDBData = document.getElementById('DeletedDB');
 
     buttonShowDBData.addEventListener('click', getDataFromDB);
     buttonSetDBData.addEventListener('click', setDataClickListener);
+    buttonDeleteDBData.addEventListener('click', deleteDataClickListener);
 });

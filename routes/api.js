@@ -5,7 +5,8 @@ const mongo = require('./database');
 router.post('/setData', databaseFlow);
 
 /** Load data from db **/
-router.post('/loadData', databaseFlow);
+router.post('/database', databaseFlow);
+router.delete('/database', deleteDataFromDatabase);
 
 function databaseFlow(req, res) {
     const errorMassage = 'Error: empty pass or username';
@@ -53,6 +54,27 @@ function databaseFlow(req, res) {
                 });
             });
     }
+}
+
+function deleteDataFromDatabase(req, res) {
+    //console.log(req, res);
+
+    let key = req.body.key.trim();
+    let user = req.body.user.trim();
+    let name = req.body.data;
+    let url = 'mongodb://' + user +
+            ':' + key + '@ds133981.mlab.com:33981/market-helper';
+
+    mongo.delete(url, name).then(
+        data => {
+            //console.log(data);
+            res.setHeader('Content-Type', 'application/json');
+            res.json({'result': 'deletion success',"data": data});
+        }, err => {
+            //console.log(err);
+            res.setHeader('Content-Type', 'application/json');
+            res.json({'error': err.message});
+        });
 }
 
 module.exports = router;
