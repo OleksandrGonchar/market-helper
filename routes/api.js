@@ -1,6 +1,6 @@
-let express = require('express');
-let router = express.Router();
-const mongodb = require('mongodb').MongoClient;
+const express = require('express');
+const router = express.Router();
+const mongo = require('./database');
 
 /**
  * Should c Contain object with structure
@@ -14,36 +14,32 @@ setInterval( ()=> {
     console.log('Current time is - ' + new Date())
 }, updateTime);
 
-function readDataFromDb (url, loadDataLoad) {
-    mongodb.connect(url, (err, db) => {
-        let collection = db.collection('items');
-        collection.find({}, {})
-            .toArray(loadDataLoad);
-    });
-};
-
 /** Load data from db **/
 router.post('/db', (req, res, next) => {
-    if (typeof req.body !== 'object' || !req.body.user || !req.body.key) {
-        const errorMassage = 'Error: empty pass or username';
+    const errorMassage = 'Error: empty pass or username';
+    const errorResponce = {
+        'error': errorMassage
+    };
 
+    if (typeof req.body !== 'object' || !req.body.user || !req.body.key) {
         res.status(404);
         res.setHeader('Content-Type', 'application/json');
-        res.json({
-            'error': errorMassage
-        });
+        res.json(errorResponce);
         return console.log(errorMassage);
     }
 
     let key = req.body.key.trim();
     let user = req.body.user.trim();
-    let url = 'mongodb://' + user + 
+    let url = 'mongodb://' + user +
         ':' + key + '@ds133981.mlab.com:33981/market-helper';
 
 
-    readDataFromDb(url, (err, data) => {
+    mongo.read(url, (err, data) => {
         console.log(url);
         if (err) {
+            res.setHeader('Content-Type', 'application/json');
+            res.status(404);
+            res.json(errorResponce);
             console.log(err);
         } else {
             res.setHeader('Content-Type', 'application/json');
