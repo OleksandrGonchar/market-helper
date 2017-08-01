@@ -19,7 +19,7 @@ function setUser(data) {
     });
 };
 
-function getFromDB(url, data) {
+function postToDatabase(url, data) {
     return new Promise(function (resolve, reject) {
         var xhr = new XMLHttpRequest();
         xhr.open('POST', url, true);
@@ -44,12 +44,30 @@ function getDataFromDB() {
     var userName = document.getElementById('userName').value;
     var userPassword = document.getElementById('userPassword').value;
 
-    getFromDB("/api/db", {
+    postToDatabase('/api/loadData', {
         'user': userName,
         'key': userPassword
-    })
-    .then(
-        response = function(response){console.log(response)},
+    }).then(
+        response = function(response){console.log('Data load: ', response)},
+        error = function(e) {
+            console.log('Rejected ', e)
+        }
+    );
+};
+
+function setDataClickListener() {
+    var userName = document.getElementById('userNameSet').value;
+    var userPassword = document.getElementById('userPasswordSet').value;
+    var data = document.getElementById('inputData').value;
+
+    postToDatabase('/api/setData', {
+        'user': userName,
+        'key': userPassword,
+        'data': {
+            'name': data
+        }
+    }).then(
+        response = function(response){console.log('Data save: ', response)},
         error = function(e) {
             console.log('Rejected ', e)
         }
@@ -59,6 +77,8 @@ function getDataFromDB() {
 document.addEventListener('DOMContentLoaded', function(e){
     e.preventDefault();
     var buttonShowDBData = document.getElementById('loadDB');
+    var buttonSetDBData = document.getElementById('setdDB');
 
     buttonShowDBData.addEventListener('click', getDataFromDB);
+    buttonSetDBData.addEventListener('click', setDataClickListener);
 });

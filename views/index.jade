@@ -5,11 +5,22 @@ block content
   p Why don't work?
 
   form#userFataForm(method="post", action="/api/setNewGroup")
+    h4 Load data
     p
       input(id="userName", type="text", placeholder="database user", name="userName")
       input(id="userPassword", type="password", placeholder="database password", name="userPassword")
     p
       input(id="loadDB", value="load data from DB", type="button")
+
+    h4 Set datap
+    p
+      input(id="userNameSet", type="text", placeholder="database user", name="userNameSet")
+      input(id="userPasswordSet", type="password", placeholder="database password", name="userPasswordSet")
+    p
+      input(id="inputData", type="text", placeholder="name or index for db", name="inputData")
+    p
+      input(id="setdDB", value="Set data to DB", type="button")
+
       
 
    script(src="/javascripts/index.js")
