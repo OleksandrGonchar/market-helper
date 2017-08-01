@@ -14,14 +14,6 @@ setInterval( ()=> {
     console.log('Current time is - ' + new Date())
 }, updateTime);
 
-function loadDataLoad (err, data){ 
-    if(err) {
-        console.log(err);
-    } else {
-        console.log('success: ' ,  data);
-    }
-};
-
 function readDataFromDb (url, loadDataLoad) {
     mongodb.connect(url, (err, db) => {
         let collection = db.collection('items');
