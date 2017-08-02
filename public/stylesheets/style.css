@@ -1,16 +1,10 @@
 body {
   padding: 50px;
   font-family: -apple-system,
-  BlinkMacSystemFont,
-  Segoe UI,
-  Roboto,
-  Oxygen,
-  Ububtu,
-  Cantarell,
-  Fira,
-  Sans,
-  Droid Sans,
-  Helvetica Neue,
+  BlinkMacSystemFont, Segoe UI,
+  Roboto, Oxygen, Ububtu, 
+  Cantarell, Fira, Sans,
+  Droid Sans, Helvetica Neue,
   sans-serif;
 }
 
