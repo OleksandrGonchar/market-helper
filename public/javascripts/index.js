@@ -37,12 +37,12 @@ function getDataFromDB() {
 function setDataClickListener() {
     var userName = document.getElementById('userNameSet').value;
     var userPassword = document.getElementById('userPasswordSet').value;
-    var data = document.getElementById('inputData').value;
+    var name = document.getElementById('inputData').value;
 
     postToDatabase('/api/database', {
         'user': userName,
         'key': userPassword,
-        'data': data
+        'data': {name: name}
     }, 'POST').then(
         response = function(response){console.log('Data save: ', response)},
         error = function(e) {

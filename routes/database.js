@@ -1,4 +1,5 @@
 const mongodb = require('mongodb').MongoClient;
+const ObjectID = require('mongodb').ObjectID;
 const collectionName = 'items';
 
 function readDataFromDb(url) {
@@ -12,7 +13,7 @@ function readDataFromDb(url) {
             }
         });
     })
-};
+}
 
 function setItemToCollection(url, data) {
     return new Promise((resolve, reject) => {
@@ -21,7 +22,7 @@ function setItemToCollection(url, data) {
                 console.log(err);
             } else {
                 db.collection(collectionName).insert(
-                    {"name": data},
+                    {"data": data},
                     (err, result) => {
                         console.log(err, result);
                         if (err) {
@@ -39,7 +40,7 @@ function deleteCollection(url, name) {
     return new Promise((resolve, reject) => {
         mongodb.connect(url, (err, db) => {
             db.collection(collectionName).remove(
-                {"name": name},
+                {"_id": ObjectID(name)},
                 (err, result) => {
                     if (err) {
                         reject('err');
