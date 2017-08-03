@@ -6,6 +6,7 @@ const market = require('./market-service');
 /** Load data from db **/
 router.post('/database', databaseFlow);
 router.delete('/database', deleteDataFromDatabase);
+router.post('/run', runAppLifeCikle);
 
 function databaseFlow(req, res) {
     const errorMassage = 'Error: empty pass or username';
@@ -56,8 +57,6 @@ function databaseFlow(req, res) {
 }
 
 function deleteDataFromDatabase(req, res) {
-    //console.log(req, res);
-
     let key = req.body.key.trim();
     let user = req.body.user.trim();
     let name = req.body.data;
@@ -74,6 +73,24 @@ function deleteDataFromDatabase(req, res) {
             res.setHeader('Content-Type', 'application/json');
             res.json({'error': err.message});
         });
+}
+
+function runAppLifeCikle(req, res) {
+    let key = req.body.key.trim();
+    let user = req.body.user.trim();
+    let method = req.body.method.trim();
+
+    let url = 'mongodb://' + user +
+        ':' + key + '@ds133981.mlab.com:33981/market-helper';
+
+    if (method == 'run') {
+        
+    }
+    
+    if (method == 'stop') {
+
+    }
+    
 }
 
 market.run();
