@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const mongo = require('./database');
+const market = require('./market-service');
 
 /** Load data from db **/
 router.post('/database', databaseFlow);
@@ -74,5 +75,7 @@ function deleteDataFromDatabase(req, res) {
             res.json({'error': err.message});
         });
 }
+
+market.run();
 
 module.exports = router;
