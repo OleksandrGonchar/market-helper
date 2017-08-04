@@ -40,7 +40,7 @@ function removeFromList () {
 }
 
 function runList() {
-    gp =  true;
+    go =  true;
     applyList();
 }
 
