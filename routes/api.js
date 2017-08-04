@@ -24,8 +24,7 @@ function databaseFlow(req, res) {
     let key = req.body.key.trim();
     let user = req.body.user.trim();
     let data = req.body.data;
-    let url = 'mongodb://' + user +
-        ':' + key + '@ds133981.mlab.com:33981/market-helper';
+    let url = `mongodb://${user}:${key}@ds133981.mlab.com:33981/market-helper`;
 
     if(data) {
         mongo.set(url, data).then(
@@ -60,8 +59,7 @@ function deleteDataFromDatabase(req, res) {
     let key = req.body.key.trim();
     let user = req.body.user.trim();
     let name = req.body.data;
-    let url = 'mongodb://' + user +
-            ':' + key + '@ds133981.mlab.com:33981/market-helper';
+    let url = `mongodb://${user}:${key}@ds133981.mlab.com:33981/market-helper`;
 
     mongo.delete(url, name).then(
         data => {
@@ -96,7 +94,7 @@ function runAppLifeCikle(req, res) {
             if (method == 'run') {
                 console.log(method);
                 /**
-                 * Method run life cicle for app
+                 * Method run life cycle for app
                  * **/
                 market.run();
             }
@@ -104,7 +102,7 @@ function runAppLifeCikle(req, res) {
             if (method == 'stop') {
                 console.log(method);
                 /**
-                 * Method stop life cicle for app
+                 * Method stop life cycle for app
                  * **/
                 market.stop();
             }
