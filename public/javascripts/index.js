@@ -85,6 +85,16 @@ function applicationControls() {
     );
 };
 
+function createTAsk() {
+    var userName = document.getElementById('userNameCreateTask').value;
+    var userPassword = document.getElementById('userPasswordCreateTask').value;
+
+    var itemId = document.getElementById('itemIdCreateTask').value;
+    var itemGroup = document.getElementById('itemGroupCreateTask').value;
+    var applicetionKey = document.getElementById('applicationKey').value;
+
+};
+
 document.addEventListener('DOMContentLoaded', function(e){
     e.preventDefault();
     var buttonShowDBData = document.getElementById('loadDB');
