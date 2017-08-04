@@ -20,6 +20,10 @@ let list = [
         console.log(i++);
     }
 ];
+
+/**
+ * Variable for cycle, if false cycle can't start
+*/
 let go = true;
 
 function addToList (task) {
