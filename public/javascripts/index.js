@@ -68,13 +68,32 @@ function deleteDataClickListener() {
     );
 };
 
+function applicationControls() {
+    var userName = document.getElementById('userNameRun').value;
+    var userPassword = document.getElementById('userPasswordRun').value;
+    var userMethod = document.getElementById('userMethod').value;
+
+    postToDatabase('/api/run', {
+        'user': userName,
+        'key': userPassword,
+        'method': userMethod
+    }, 'post').then(
+        response = function(response){console.log('Server say: ', response)},
+        error = function(e) {
+            console.log('Rejected ', e)
+        }
+    );
+};
+
 document.addEventListener('DOMContentLoaded', function(e){
     e.preventDefault();
     var buttonShowDBData = document.getElementById('loadDB');
     var buttonSetDBData = document.getElementById('setdDB');
     var buttonDeleteDBData = document.getElementById('DeletedDB');
+    var buttonRunApp = document.getElementById('runApp');
 
     buttonShowDBData.addEventListener('click', getDataFromDB);
     buttonSetDBData.addEventListener('click', setDataClickListener);
     buttonDeleteDBData.addEventListener('click', deleteDataClickListener);
+    buttonRunApp.addEventListener('click', applicationControls);
 });

@@ -83,16 +83,39 @@ function runAppLifeCikle(req, res) {
     let url = 'mongodb://' + user +
         ':' + key + '@ds133981.mlab.com:33981/market-helper';
 
-    if (method == 'run') {
-        
-    }
-    
-    if (method == 'stop') {
+    console.log(url);
 
-    }
-    
+    mongo.read(url).then(
+        data => {
+            res.setHeader('Content-Type', 'application/json');
+            res.status(200);
+            res.json({
+                'wtf': '!!!.'
+            });
+            console.log('Success ', data);
+            if (method == 'run') {
+                console.log(method);
+                /**
+                 * Method run life cicle for app
+                 * **/
+                market.run();
+            }
+
+            if (method == 'stop') {
+                console.log(method);
+                /**
+                 * Method stop life cicle for app
+                 * **/
+                market.stop();
+            }
+        }, err => {
+            console.log(err);
+            res.setHeader('Content-Type', 'application/json');
+            res.status(404);
+            res.json({
+                'error': 'Authentication failed.'
+            });
+        });
 }
-
-market.run();
 
 module.exports = router;
