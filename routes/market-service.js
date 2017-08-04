@@ -52,8 +52,11 @@ function applyList () {
     if (go && list.length !== 0) {
         const usedElementFromList = list[0];///take first function from list 
         usedElementFromList();//apply first element from list
-        list.push(usedElementFromList);//push used function from start to end list 
         
+        //if function should run once, check it and didn't push to list
+        if (!usedElementFromList.once) {
+            list.push(usedElementFromList);//push used function from start to end list 
+        }
         shiftList();
         awaitRun();
     } else {
