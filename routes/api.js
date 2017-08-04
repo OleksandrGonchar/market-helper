@@ -2,11 +2,13 @@ const express = require('express');
 const router = express.Router();
 const mongo = require('./database');
 const market = require('./market-service');
+const fabrica = require('./fabrikaForMarketFunction');
 
 /** Load data from db **/
 router.post('/database', databaseFlow);
 router.delete('/database', deleteDataFromDatabase);
 router.post('/run', runAppLifeCikle);
+router.post('/task', taskCreator);
 
 function databaseFlow(req, res) {
     const errorMassage = 'Error: empty pass or username';
@@ -78,8 +80,7 @@ function runAppLifeCikle(req, res) {
     let user = req.body.user.trim();
     let method = req.body.method.trim();
 
-    let url = 'mongodb://' + user +
-        ':' + key + '@ds133981.mlab.com:33981/market-helper';
+    let url = `mongodb://${user}:${key}@ds133981.mlab.com:33981/market-helper`;
 
     console.log(url);
 
@@ -114,6 +115,11 @@ function runAppLifeCikle(req, res) {
                 'error': 'Authentication failed.'
             });
         });
+}
+
+function taskCreator() {
+    const s = fabrica();
+    s(); //test
 }
 
 module.exports = router;
