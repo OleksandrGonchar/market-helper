@@ -2,22 +2,22 @@ let i = 0;
 
 let list = [
     function(){
-        console.log(i++);
+        console.log(1);
     },
     function(){
-        console.log(i++);
+        console.log(2);
     },
     function(){
-        console.log(i++);
+        console.log(3);
     },
     function(){
-        console.log(i++);
+        console.log(4);
     },
     function(){
-        console.log(i++);
+        console.log(5);
     },
     function(){
-        console.log(i++);
+        console.log(6);
     }
 ];
 
@@ -50,7 +50,9 @@ function runList() {
 
 function applyList () {
     if (go && list.length !== 0) {
-        list[0].apply(this);
+        const usedElementFromList = list[0];///take first function from list 
+        usedElementFromList();//apply first element from list
+        list.push(usedElementFromList);//push used function from start to end list 
         
         shiftList();
         awaitRun();
