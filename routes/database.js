@@ -39,11 +39,19 @@ function setItemToCollection(url, data) {
 function deleteCollection(url, name) {
     return new Promise((resolve, reject) => {
         mongodb.connect(url, (err, db) => {
+            let id;
+            if(/^[0-9a-fA-F]{24}$/.test(name)) {
+                id = ObjectID(name);
+            } else {
+                const err = 'ERROR: Invalid ID';
+                console.log(err);
+                reject(err);
+            }
             db.collection(collectionName).remove(
-                {"_id": ObjectID(name)},
+                {"_id": id},
                 (err, result) => {
                     if (err) {
-                        reject('err');
+                        reject(err);
                     } else {
                         resolve(result);
                     }
