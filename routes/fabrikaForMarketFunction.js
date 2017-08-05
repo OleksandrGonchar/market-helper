@@ -7,10 +7,12 @@ const https = require("https");
  * parameter {callback} function running after this function complite
  */
 function fabrica(itemId, itemGroup, key, once, callback) {
+    const setOrder = `/api/InsertOrder/${itemId}/${itemGroup}/[price]//?key=${key}`
+    const itemInformation = `/api/ItemInfo/${itemId}_${itemGroup}/ru/ru/?key=${key}`
     let targetFunction = function() {
         const options = {
             host: 'market.csgo.com',
-            path: `/api/ItemInfo/${itemId}_${itemGroup}/ru/ru/?key=${key}`
+            path: itemInformation
         };
 
         const req = https.get(options, function(res) {
@@ -22,7 +24,7 @@ function fabrica(itemId, itemGroup, key, once, callback) {
             }).on('end', function() {
                 const body = Buffer.concat(bodyChunks);
                 console.log('BODY: ' + body);
-                callback(body);
+                callback(JSON.parse(body));
             })
         });
 

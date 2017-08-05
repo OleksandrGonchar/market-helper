@@ -37,12 +37,22 @@ function getDataFromDB() {
 function setDataClickListener() {
     var userName = document.getElementById('userNameSet').value;
     var userPassword = document.getElementById('userPasswordSet').value;
-    var name = document.getElementById('inputData').value;
+    var id = document.getElementById('inputItemId').value;
+    var group = document.getElementById('inputItemGroup').value;
+    var priceBuy = document.getElementById('itemPriceBuy').value;
+    var priceSeel = document.getElementById('itemPriceSeel').value;
+    var count = document.getElementById('itemCount').value;
 
     postToDatabase('/api/database', {
         'user': userName,
         'key': userPassword,
-        'data': {name: name}
+        'data': {
+            id: id,
+            group: group,
+            priceBuy: priceBuy,
+            priceSeel: priceSeel,
+            count: count
+        }
     }, 'POST').then(
         response = function(response){console.log('Data save: ', response)},
         error = function(e) {
