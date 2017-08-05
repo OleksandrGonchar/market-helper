@@ -91,8 +91,20 @@ function createTAsk() {
 
     var itemId = document.getElementById('itemIdCreateTask').value;
     var itemGroup = document.getElementById('itemGroupCreateTask').value;
-    var applicetionKey = document.getElementById('applicationKey').value;
+    var applicationKey = document.getElementById('applicationKey').value;
 
+    postToDatabase('/api/task', {
+        'user': userName,
+        'key': userPassword,
+        'itemId': itemId,
+        'itemGroup': itemGroup,
+        'AppKey' : applicationKey
+    }, 'post').then(
+        response = function(response){console.log('Server say: ', response)},
+        error = function(e) {
+            console.log('Rejected ', e)
+        }
+    );
 };
 
 document.addEventListener('DOMContentLoaded', function(e){
@@ -101,7 +113,9 @@ document.addEventListener('DOMContentLoaded', function(e){
     var buttonSetDBData = document.getElementById('setdDB');
     var buttonDeleteDBData = document.getElementById('DeletedDB');
     var buttonRunApp = document.getElementById('runApp');
+    var buttonCreateTask = document.getElementById('createTask');
 
+    buttonCreateTask.addEventListener('click', createTAsk);
     buttonShowDBData.addEventListener('click', getDataFromDB);
     buttonSetDBData.addEventListener('click', setDataClickListener);
     buttonDeleteDBData.addEventListener('click', deleteDataClickListener);

@@ -89,7 +89,7 @@ function runAppLifeCikle(req, res) {
             res.setHeader('Content-Type', 'application/json');
             res.status(200);
             res.json({
-                'wtf': '!!!.'
+                'status': '!!!.'
             });
             console.log('Success ', data);
             if (method == 'run') {
@@ -117,9 +117,37 @@ function runAppLifeCikle(req, res) {
         });
 }
 
-function taskCreator() {
-    const s = fabrica();
-    s(); //test
+function taskCreator(req, res) {
+    let key = req.body.key.trim();
+    let user = req.body.user.trim();
+    let itemId = req.body.itemId.trim();
+    let itemGroup = req.body.itemGroup.trim();
+    let AppKey = req.body.AppKey.trim();
+
+    let url = `mongodb://${user}:${key}@ds133981.mlab.com:33981/market-helper`;
+
+    console.log(url);
+
+    mongo.read(url).then(
+        data => {
+            console.log('Success ', data);
+            const targetFunction = fabrica(itemId, itemGroup, AppKey, true, (data)=>{
+                console.log('fuck')
+                res.setHeader('Content-Type', 'application/json');
+                res.status(200);
+                res.json(data);
+            });
+
+            market.add(targetFunction);
+            
+        }, err => {
+            console.log(err);
+            res.setHeader('Content-Type', 'application/json');
+            res.status(404);
+            res.json({
+                'error': 'Authentication failed.'
+            });
+        });
 }
 
 module.exports = router;
