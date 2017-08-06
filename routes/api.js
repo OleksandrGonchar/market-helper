@@ -124,9 +124,10 @@ function taskCreator(req, res) {
     let itemGroup = req.body.itemGroup.trim();
     let AppKey = req.body.AppKey.trim();
 
+    console.log(itemId, itemGroup, AppKey, true);
+    fabrica(itemId, itemGroup, AppKey, true);
+/*
     let url = `mongodb://${user}:${key}@ds133981.mlab.com:33981/market-helper`;
-
-    console.log(url);
 
     mongo.read(url).then(
         data => {
@@ -148,6 +149,7 @@ function taskCreator(req, res) {
                 'error': 'Authentication failed.'
             });
         });
+        */
 }
 
 module.exports = router;
