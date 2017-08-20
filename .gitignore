@@ -1,4 +1,7 @@
 node_modules
+public/node_modules
+**/keymarket.json
+**/keymongolab.json
 .tmp
 .idea
 Capture

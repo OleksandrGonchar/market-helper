@@ -1,4 +1,7 @@
-let i = 0;
+const https = require("https");
+
+const mongo = require('./database');
+const keyService = require('./keyService');
 
 let list = [
     function(){
@@ -26,6 +29,99 @@ let list = [
 */
 let go = true;
 
+function chekDataOnMarket(configObject, market) {
+    return function() {
+        const host = 'market.csgo.com';
+        const path = `/api/ItemInfo/${configObject.id}_${configObject.group}/ru/ru/?key=${market.key}`;
+        const options = {
+            host: host,
+            path: path
+        };
+    
+        const req = https.get(options, function(res) {
+            // Buffer the body entirely for processing as a whole.
+            let bodyChunks = [];
+            res.on('data', function(chunk) {
+                // You can process streamed parts here...
+                bodyChunks.push(chunk);
+            }).on('end', function() {
+                const body = Buffer.concat(bodyChunks);
+                
+                list[list.length] = function(){
+                    dataHendler(JSON.parse(body), configObject, market);
+                };
+            });
+            
+            res.on('error', function(err){
+                console.log(err);
+            });
+        });
+    }
+}
+
+function dataHendler(data, configObject, market) {
+    let myCount = 0;
+    let myBuyOffers = 0;
+
+    for (let i = 0; i < data.offers.length; i++) {
+        myCount += +data.offers[i].my_count
+    }
+
+    for (let k = 0; k < data.buy_offers.length; k++) {
+        myBuyOffers += +data.buy_offers[k].my_count
+    }
+
+    if (myCount < configObject.count && myBuyOffers == 0) {
+        console.log(`I nead more ${data.name}`);
+        setOrder(configObject, data, market);
+    }
+}
+
+function setOrder(configObject, marketObject, market) {
+    const host = 'market.csgo.com';
+    const path = `/api/InsertOrder/${configObject.id}/${configObject.group}/${configObject.priceBuy}//?key=${market.key}`;
+
+    let targetFunction = function() {
+        const options = {
+            host: host,
+            path: path
+        };
+
+        list[list.length] = function() {
+            const req = https.get(options, function(res) {
+                let bodyChunks = [];
+                res.on('data', function(chunk) {
+                    bodyChunks.push(chunk);
+                }).on('end', function() {
+                    const body = Buffer.concat(bodyChunks);
+                });
+                
+                res.on('error', function(err){
+                    console.log(err);
+                });
+            });
+        };
+    };
+
+    list[list.length] = targetFunction;
+};
+
+function feelFromDataBase(mlab, market) {
+    let url = `mongodb://${mlab.login}:${mlab.key}@ds133981.mlab.com:33981/market-helper`;
+    mongo.read(url).then(
+    data => {
+        for (let i = 0; i < data.length; i++) {
+            let fun = chekDataOnMarket(data[i].data, market);
+            list[list.length] = fun;
+        }
+        console.log('Run');
+        runList();
+    }, err => {
+        console.log('ERROR: ', err.message);
+        //reject(err);
+    });
+}
+
 function addToList (task) {
     console.log('Add to list');
     list.push(task);
@@ -49,14 +145,19 @@ function runList() {
 }
 
 function applyList () {
-    if (go && list.length !== 0) {
+    const length = list.length;
+    if(length == 0) {
+        Promise.all([
+            keyService.get('keymongolab.json'),
+            keyService.get('keymarket.json')
+        ]).then((parameters) => {
+            feelFromDataBase(parameters[0], parameters[1]);
+        });
+    }
+
+    if (go && length !== 0) {
         const usedElementFromList = list[0];///take first function from list 
         usedElementFromList();//apply first element from list
-        
-        //if function should run once, check it and didn't push to list
-        if (!usedElementFromList.once) {
-            list.push(usedElementFromList);//push used function from start to end list 
-        }
         shiftList();
         awaitRun();
     } else {
@@ -75,6 +176,8 @@ function awaitRun() {
     }, 250);
 }
 
+keyService.get('keymarket.json').then(data => console.log('wtf!!',data));
+//keyService.get('keymongolab.json').then(data => console.log('wtf!!',data));
 
 module.exports = {
     add: addToList,

@@ -2,7 +2,6 @@ const express = require('express');
 const router = express.Router();
 const mongo = require('./database');
 const market = require('./market-service');
-const fabrica = require('./fabrikaForMarketFunction');
 
 /** Load data from db **/
 router.post('/database', databaseFlow);
@@ -91,7 +90,6 @@ function runAppLifeCikle(req, res) {
             res.json({
                 'status': '!!!.'
             });
-            console.log('Success ', data);
             if (method == 'run') {
                 console.log(method);
                 /**
@@ -124,32 +122,8 @@ function taskCreator(req, res) {
     let itemGroup = req.body.itemGroup.trim();
     let AppKey = req.body.AppKey.trim();
 
-    console.log(itemId, itemGroup, AppKey, true);
-    fabrica(itemId, itemGroup, AppKey, true);
-/*
-    let url = `mongodb://${user}:${key}@ds133981.mlab.com:33981/market-helper`;
-
-    mongo.read(url).then(
-        data => {
-            console.log('Success ', data);
-            const targetFunction = fabrica(itemId, itemGroup, AppKey, true, (data)=>{
-                console.log('fuck')
-                res.setHeader('Content-Type', 'application/json');
-                res.status(200);
-                res.json(data);
-            });
-
-            market.add(targetFunction);
-            
-        }, err => {
-            console.log(err);
-            res.setHeader('Content-Type', 'application/json');
-            res.status(404);
-            res.json({
-                'error': 'Authentication failed.'
-            });
-        });
-        */
+    //Todo implement logic
+    console.log(req)
 }
 
 module.exports = router;
