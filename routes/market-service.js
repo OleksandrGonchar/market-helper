@@ -12,15 +12,6 @@ let list = [
     },
     function(){
         console.log(3);
-    },
-    function(){
-        console.log(4);
-    },
-    function(){
-        console.log(5);
-    },
-    function(){
-        console.log(6);
     }
 ];
 
@@ -48,7 +39,13 @@ function chekDataOnMarket(configObject, market) {
                 const body = Buffer.concat(bodyChunks);
                 
                 list[list.length] = function(){
-                    dataHendler(JSON.parse(body), configObject, market);
+                    try {
+                        let dataObject = JSON.parse(body);
+                        dataHendler(dataObject, configObject, market);
+                    } catch(e) {
+                        console.log(e);
+
+                    }
                 };
             });
             
@@ -139,14 +136,14 @@ function removeFromList () {
 
 }
 
-function runList() {
+function runList () {
     go =  true;
     applyList();
 }
 
 function applyList () {
     const length = list.length;
-    if(length == 0) {
+    if (length == 0) {
         Promise.all([
             keyService.get('keymongolab.json'),
             keyService.get('keymarket.json')
@@ -171,13 +168,12 @@ function stopList () {
 }
 
 function awaitRun() {
-    setTimeout(function(){
+    setTimeout(() => {
         applyList();
     }, 250);
 }
 
 keyService.get('keymarket.json').then(data => console.log('wtf!!',data));
-//keyService.get('keymongolab.json').then(data => console.log('wtf!!',data));
 
 module.exports = {
     add: addToList,
