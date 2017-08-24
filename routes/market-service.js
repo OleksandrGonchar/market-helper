@@ -98,7 +98,7 @@ function setOrder(configObject, marketObject, market) {
                 });
             });
         };
-    };
+    };z
 
     list[list.length] = targetFunction;
 };
@@ -149,7 +149,7 @@ function applyList () {
             keyService.get('keymarket.json')
         ]).then((parameters) => {
             feelFromDataBase(parameters[0], parameters[1]);
-        });
+        }).catch(e=>xonsole.log(e));
     }
 
     if (go && length !== 0) {
@@ -173,7 +173,9 @@ function awaitRun() {
     }, 250);
 }
 
-keyService.get('keymarket.json').then(data => console.log('wtf!!',data));
+keyService.get('keymarket.json')
+    .then(data => console.log('wtf!!',data))
+    .catch(e=>xonsole.log(e));
 
 module.exports = {
     add: addToList,
