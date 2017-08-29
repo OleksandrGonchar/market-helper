@@ -3,6 +3,8 @@ const https = require("https");
 const mongo = require('./database');
 const keyService = require('./keyService');
 
+const intervalTimeOut = 250;//millesecund 
+
 let list = [
     function(){
         console.log(1);
@@ -20,6 +22,19 @@ let list = [
 */
 let go = true;
 
+function createDummyFuncForTimeout(seconds) {
+    let count = (seconds * 1000)/intervalTimeOut;
+    let constructorForFunction = function(time) {
+        return function() {
+            console.log(`Weiting for updates ${time}\'s`);
+        }
+    }
+    for(let i = 0; i < count; i++) {
+        addToList(constructorForFunction(count - i));
+
+    }
+}
+
 function chekDataOnMarket(configObject, market, inventory) {
     return function() {
         const host = 'market.csgo.com';
@@ -28,33 +43,30 @@ function chekDataOnMarket(configObject, market, inventory) {
             host: host,
             path: path
         };
-        updateInventory(market);
-    
-        setTimeout(function(){
-            const req = https.get(options, function(res) {
-                // Buffer the body entirely for processing as a whole.
-                let bodyChunks = [];
-                res.on('data', function(chunk) {
-                    // You can process streamed parts here...
-                    bodyChunks.push(chunk);
-                }).on('end', function() {
-                    const body = Buffer.concat(bodyChunks);
-                    
-                    list[list.length] = function(){
-                        try {
-                            let dataObject = JSON.parse(body);
-                            dataHendler(dataObject, configObject, market, inventory);
-                        } catch(e) {
-                            console.log(e);
-                        }
-                    };
-                });
+
+        const req = https.get(options, function(res) {
+            // Buffer the body entirely for processing as a whole.
+            let bodyChunks = [];
+            res.on('data', function(chunk) {
+                // You can process streamed parts here...
+                bodyChunks.push(chunk);
+            }).on('end', function() {
+                const body = Buffer.concat(bodyChunks);
                 
-                res.on('error', function(err){
-                    console.log(err);
-                });
+                list[list.length] = function(){
+                    try {
+                        let dataObject = JSON.parse(body);
+                        dataHendler(dataObject, configObject, market, inventory);
+                    } catch(e) {
+                        console.log(e);
+                    }
+                };
             });
-        }, 15250);
+            
+            res.on('error', function(err){
+                console.log(err);
+            });
+        });
     }
 }
 
@@ -71,7 +83,7 @@ function sellItem(data, configObject, market, inventory) {
     if(targetItem.length > 0) {
         //console.log('\n\n\n\n', configObject, targetItem);
         const host = 'market.csgo.com';
-        const path = `/api/SetPrice/new_${configObject.id}_${configObject.group}/${configObject.priceSeel}/?key=${market.key}`;
+        const path = `/api/SetPrice/${targetItem[0].ui_id}/${configObject.priceSeel}/?key=${market.key}`;
         const options = {
             host: host,
             path: path
@@ -83,8 +95,10 @@ function sellItem(data, configObject, market, inventory) {
             res.on('data', function(chunk) {
                 bodyChunks.push(chunk);
             }).on('end', function() {
-                const body = Buffer.concat(bodyChunks);
-                console.log(JSON.parse(body));
+                const responce = JSON.parse(Buffer.concat(bodyChunks));
+                if (responce.result == 1) {
+                    console.log(`Item with id ${responce.item_id} set for sell with price ${responce.price}p`);
+                }
             });
             
             res.on('error', function(err){
@@ -115,7 +129,7 @@ function updateInventory(market) {
                 console.log(err);
             });
         });
-    }, 250);
+    }, intervalTimeOut);
 };
 
 function dataHendler(data, configObject, market, inventory) {
@@ -179,14 +193,18 @@ function feelFromDataBase(mlab, market) {
         path: path
     }
 
+    //update inventory
+    console.log('start update inventry')
+    updateInventory(market);
+    //create dummy function for timeout
+    createDummyFuncForTimeout(10);
+
     https.get(options, function(res) {
         let bodyChunks = [];
         res.on('data', function(chunk) {
             bodyChunks.push(chunk);
         }).on('end', function() {
             const inventory = JSON.parse(Buffer.concat(bodyChunks));
-            
-            console.log(typeof inventory);
 
             mongo.read(url).then(
                 data => {
@@ -209,7 +227,6 @@ function feelFromDataBase(mlab, market) {
 }
 
 function addToList (task) {
-    console.log('Add to list');
     list.push(task);
 }
 
