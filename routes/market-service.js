@@ -26,7 +26,7 @@ function createDummyFuncForTimeout(seconds) {
     let count = (seconds * 1000)/intervalTimeOut;
     let constructorForFunction = function(time) {
         return function() {
-            console.log(`Weiting for updates ${time}\'s`);
+            console.log(`Start after ${(time * seconds)/10}\'s`);
         }
     }
     for(let i = 0; i < count; i++) {
@@ -82,8 +82,11 @@ function sellItem(data, configObject, market, inventory) {
 
     if(targetItem.length > 0) {
         //console.log('\n\n\n\n', configObject, targetItem);
+        
+        const minimalPriceOnMarket = checkMinimalPrice(data.offers);
+        const price = configObject.priceSeel < minimalPriceOnMarket ? minimalPriceOnMarket : configObject.priceSeel;
         const host = 'market.csgo.com';
-        const path = `/api/SetPrice/${targetItem[0].ui_id}/${configObject.priceSeel}/?key=${market.key}`;
+        const path = `/api/SetPrice/${targetItem[0].ui_id}/${price}/?key=${market.key}`;
         const options = {
             host: host,
             path: path
@@ -96,6 +99,7 @@ function sellItem(data, configObject, market, inventory) {
                 bodyChunks.push(chunk);
             }).on('end', function() {
                 const responce = JSON.parse(Buffer.concat(bodyChunks));
+                
                 if (responce.result == 1) {
                     console.log(`Item with id ${responce.item_id} set for sell with price ${responce.price}p`);
                 }
@@ -117,40 +121,71 @@ function updateInventory(market) {
     };
 
     setTimeout(function() {
-        https.get(options, function(res) {
-            let bodyChunks = [];
-            res.on('data', function(chunk) {
-                bodyChunks.push(chunk);
-            }).on('end', function() {
-                const body = Buffer.concat(bodyChunks);
+        try {
+            https.get(options, function(res) {
+                let bodyChunks = [];
+                res.on('data', function(chunk) {
+                    bodyChunks.push(chunk);
+                }).on('end', function() {
+                    const body = Buffer.concat(bodyChunks);
+                });
+                
+                res.on('error', function(err){
+                    console.log(err);
+                });
             });
-            
-            res.on('error', function(err){
-                console.log(err);
-            });
-        });
+        } catch(e) {
+            console.log(`Unhendled error in Nodejs method: ${e}`);
+        }
     }, intervalTimeOut);
 };
 
+
+/**
+ * 
+ * @param {array} arrayOffers 
+ * this function get array with structure like [{price: 40, count: 1, my_count: 1}]
+ * and return minimal price without your count
+ */
+function checkMinimalPrice(arrayOffers) {
+    let minimalPrice;
+    arrayOffers.some((item) => {
+        if (item.my_count == 0 && item.count > 0) {
+            minimalPrice = item.price;
+            return true;
+        } else {
+            return false;
+        }
+    });
+
+    return minimalPrice
+};
+
 function dataHendler(data, configObject, market, inventory) {
-    let myCount = 0;
-    let myBuyOffers = 0;
+    try {
+        let myCount = 0;
+        let myBuyOffers = 0;
 
-    for (let i = 0; i < data.offers.length; i++) {
-        myCount += +data.offers[i].my_count
-    }
+        console.log(`minimal price for ${data.name} `, checkMinimalPrice(data.offers));
 
-    for (let k = 0; k < data.buy_offers.length; k++) {
-        myBuyOffers += +data.buy_offers[k].my_count
-    }
+        for (let i = 0; i < data.offers.length; i++) {
+            myCount += +data.offers[i].my_count
+        }
 
-    if (myCount < configObject.count && myBuyOffers == 0) {
-        console.log(`I nead more ${data.name}`);
-        setOrder(configObject, data, market);
-    }
+        for (let k = 0; k < data.buy_offers.length; k++) {
+            myBuyOffers += +data.buy_offers[k].my_count
+        }
 
-    if (myCount < configObject.count) {
-        sellItem(data, configObject, market, inventory);
+        if (myCount < configObject.count && myBuyOffers == 0) {
+            console.log(`I nead more ${data.name}`);
+            setOrder(configObject, data, market);
+        }
+
+        if (myCount < configObject.count) {
+            sellItem(data, configObject, market, inventory);
+        }
+    } catch(e) {
+        console.log(`Error from dataHendler^ ${e}`)
     }
 }
 
