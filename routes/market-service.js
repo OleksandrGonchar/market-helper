@@ -84,7 +84,7 @@ function sellItem(data, configObject, market, inventory) {
         //console.log('\n\n\n\n', configObject, targetItem);
         
         const minimalPriceOnMarket = checkMinimalPrice(data.offers);
-        const price = configObject.priceSeel < minimalPriceOnMarket ? configObject.priceSeel : (minimalPriceOnMarket - 1);
+        const price = configObject.priceSeel < minimalPriceOnMarket ? (minimalPriceOnMarket - 1) : configObject.priceSeel;
         const host = 'market.csgo.com';
         const path = `/api/SetPrice/${targetItem[0].ui_id}/${price}/?key=${market.key}`;
         const options = {
