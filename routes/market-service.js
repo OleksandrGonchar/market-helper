@@ -70,6 +70,57 @@ function chekDataOnMarket(configObject, market, inventory) {
     }
 }
 
+/**
+ * @param arrayOfTargetPrices   {Array} array of price from mongo databse [{"price":"60","count":"10"},{"price":"65","count":"10"}]
+ * @param arrayOfCurrentPrices  {Array} array of prices on market [{"price":"52","count":"54","my_count":"0"},{"price":"53","count":"38","my_count":"0"}]
+ * @param minimalPriceOnMarket  {String} minimal price on market
+ * @param marketKey             {String} string with market key
+ * @param uiId                  {String} string with ui id for selling items
+ * @return                      {Object} object contain host and path for request on market with max price
+ */
+function urlForSellCreator (arrayOfTargetPrices, arrayOfCurrentPrices, minimalPriceOnMarket, marketKey, uiId) {
+    arrayOfTargetPrices = arrayOfTargetPrices.sort((a,b) => b.price-a.price);
+    arrayOfCurrentPrices = arrayOfCurrentPrices.sort((a,b) => b-a).filter(item1=> {
+        return arrayOfTargetPrices.every(item2 => {
+            console.log(item1.price , item2.price , item1.my_count , item2.count)
+            return !(item1.price == item2.price && item1.my_count == item2.count)
+        })
+    });
+    let targetItem;
+    let marketHaveMyPrice = arrayOfTargetPrices.some(myTaretItem => {
+        return arrayOfCurrentPrices.some(itemOnMarket => {
+            if(itemOnMarket.price == myTaretItem.price && +myTaretItem.count > +itemOnMarket.my_count) {
+                targetItem = myTaretItem;
+                return true;
+            }
+            return false;
+        });
+    });
+
+    if (!targetItem) {
+        targetItem = arrayOfTargetPrices.filter(myTaretItem =>{
+            return arrayOfCurrentPrices.some(itemOnMarket => {
+                return !(+itemOnMarket.price == +myTaretItem.price && +myTaretItem.count <= +itemOnMarket.my_count);
+            })
+        })[0];
+    }
+    console.log('\n\n\n', arrayOfTargetPrices, '\n', targetItem);
+
+    const price = +targetItem.price < +minimalPriceOnMarket ? (+minimalPriceOnMarket - 1) : +targetItem.price;
+
+    console.log(targetItem.price, '<', minimalPriceOnMarket, '?', (minimalPriceOnMarket - 1), ':', targetItem.price);
+    console.log('price', price)
+
+    const host = 'market.csgo.com';
+    const path = `/api/SetPrice/${uiId}/${price}/?key=${marketKey}`;
+    const url = {
+        host: host,
+        path: path
+    };
+    console.log(url);
+    return url
+}
+
 function sellItem(data, configObject, market, inventory) {
 
     if (inventory.ok != true) {
@@ -82,18 +133,23 @@ function sellItem(data, configObject, market, inventory) {
 
     if(targetItem.length > 0) {
         //console.log('\n\n\n\n', configObject, targetItem);
-        
+        configObject.prices.map(item => {
+            console.log(`Have different variant of price: ${JSON.stringify(item)}`)
+        })
         const minimalPriceOnMarket = checkMinimalPrice(data.offers);
-        const price = configObject.priceSeel < minimalPriceOnMarket ? (minimalPriceOnMarket - 1) : configObject.priceSeel;
+        const price = +configObject.priceSeel < +minimalPriceOnMarket ? (+minimalPriceOnMarket - 1) : +configObject.priceSeel;
+
+        options = urlForSellCreator(configObject.prices, data.offers, minimalPriceOnMarket, market.key, targetItem[0].ui_id);
+/*
         const host = 'market.csgo.com';
         const path = `/api/SetPrice/${targetItem[0].ui_id}/${price}/?key=${market.key}`;
         const options = {
             host: host,
             path: path
         };
+*/
 
         https.get(options, function(res) {
-            console.log(path)
             let bodyChunks = [];
             res.on('data', function(chunk) {
                 bodyChunks.push(chunk);
@@ -110,6 +166,12 @@ function sellItem(data, configObject, market, inventory) {
             });
         });
     };
+};
+
+function updateOrderGenerator(data, configObject, market, inventory) {
+/**
+ * ToDo
+ */
 };
 
 function updateInventory(market) {
@@ -140,12 +202,10 @@ function updateInventory(market) {
     }, intervalTimeOut);
 };
 
-
 /**
- * 
- * @param {array} arrayOffers 
- * this function get array with structure like [{price: 40, count: 1, my_count: 1}]
+ * @description this function get array with structure like [{price: 40, count: 1, my_count: 1}]
  * and return minimal price without your count
+ * @param {array} arrayOffers 
  */
 function checkMinimalPrice(arrayOffers) {
     let minimalPrice;
@@ -165,8 +225,14 @@ function dataHendler(data, configObject, market, inventory) {
     try {
         let myCount = 0;
         let myBuyOffers = 0;
+        let iWantSell = 0;
 
-        console.log(`minimal price for ${data.name} `, checkMinimalPrice(data.offers));
+        configObject.prices.map(ex => {
+            //sum of all items i want to byy
+            iWantSell += +ex.count;
+        });
+
+        console.log(iWantSell);
 
         for (let i = 0; i < data.offers.length; i++) {
             myCount += +data.offers[i].my_count
@@ -239,8 +305,13 @@ function feelFromDataBase(mlab, market) {
         res.on('data', function(chunk) {
             bodyChunks.push(chunk);
         }).on('end', function() {
-            const inventory = JSON.parse(Buffer.concat(bodyChunks));
+            let inventory;
 
+            try {
+                inventory = JSON.parse(Buffer.concat(bodyChunks));
+            } catch(e) {
+                console.log(`Invalid responce: ${e}`);
+            }
             mongo.read(url).then(
                 data => {
                     for (let i = 0; i < data.length; i++) {
@@ -252,7 +323,7 @@ function feelFromDataBase(mlab, market) {
                 }, err => {
                     console.log('ERROR: ', err.message);
                     //reject(err);
-                });
+                })
         });
         
         res.on('error', function(err){
@@ -279,7 +350,11 @@ function removeFromList () {
 
 function runList () {
     go =  true;
-    applyList();
+    try {
+        applyList();
+    } catch(e) {
+        console.log(`Error in apply list:\n${e}`);
+    }
 }
 
 function applyList () {
@@ -317,6 +392,8 @@ function awaitRun() {
 keyService.get('keymarket.json')
     .then(data => console.log('wtf!!',data))
     .catch(e=>console.log(e));
+
+runList();//test 
 
 module.exports = {
     add: addToList,
