@@ -80,29 +80,30 @@ function chekDataOnMarket(configObject, market, inventory) {
  */
 function urlForSellCreator (arrayOfTargetPrices, arrayOfCurrentPrices, minimalPriceOnMarket, marketKey, uiId) {
     arrayOfTargetPrices = arrayOfTargetPrices.sort((a,b) => b.price-a.price);
-    arrayOfCurrentPrices = arrayOfCurrentPrices.sort((a,b) => b-a).filter(item1=> {
-        return arrayOfTargetPrices.every(item2 => {
-            console.log(item1.price , item2.price , item1.my_count , item2.count)
-            return !(item1.price == item2.price && item1.my_count == item2.count)
-        })
-    });
-    let targetItem;
-    let marketHaveMyPrice = arrayOfTargetPrices.some(myTaretItem => {
-        return arrayOfCurrentPrices.some(itemOnMarket => {
-            if(itemOnMarket.price == myTaretItem.price && +myTaretItem.count > +itemOnMarket.my_count) {
-                targetItem = myTaretItem;
-                return true;
-            }
-            return false;
-        });
-    });
+    arrayOfCurrentPrices = arrayOfCurrentPrices.sort((a,b) => b-a);
+    var filteredArrayOfTargetPrices = [];
+    
+    for (var i=0; i<arrayOfTargetPrices.length; i++) {
+      var item1 = arrayOfTargetPrices[i];
+      var flag = true;
+      
+      arrayOfCurrentPrices.forEach(item2 => {
+        console.log(item2.price , item1.price, '&&', item1.count , item2.my_count);
+        console.log(item2.price == item1.price && item1.count >= item2.my_count);
+      
+        if (item2.price == item1.price && item2.my_count >= item1.count) {
+          flag = false
+        }
+      })
+      console.log('flag',flag)
+      if(flag) {
+        filteredArrayOfTargetPrices.push(item1);
+      }
+    }
+    targetItem = filteredArrayOfTargetPrices[0];
 
-    if (!targetItem) {
-        targetItem = arrayOfTargetPrices.filter(myTaretItem =>{
-            return arrayOfCurrentPrices.some(itemOnMarket => {
-                return !(+itemOnMarket.price == +myTaretItem.price && +myTaretItem.count <= +itemOnMarket.my_count);
-            })
-        })[0];
+    if (targetItem == undefined) {
+        return;
     }
     console.log('\n\n\n', arrayOfTargetPrices, '\n', targetItem);
 
