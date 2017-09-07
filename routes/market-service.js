@@ -198,7 +198,7 @@ function updateInventory(market) {
                 });
             });
         } catch(e) {
-            console.log(`Unhendled error in Nodejs method: ${e}`);
+            console.log(`Unhendled error in update inventory method: ${e}`);
         }
     }, intervalTimeOut);
 };
@@ -232,8 +232,6 @@ function dataHendler(data, configObject, market, inventory) {
             //sum of all items i want to byy
             iWantSell += +ex.count;
         });
-
-        console.log(iWantSell);
 
         for (let i = 0; i < data.offers.length; i++) {
             myCount += +data.offers[i].my_count
