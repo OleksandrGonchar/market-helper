@@ -80,17 +80,14 @@ function chekDataOnMarket(configObject, market, inventory) {
  */
 function urlForSellCreator (arrayOfTargetPrices, arrayOfCurrentPrices, minimalPriceOnMarket, marketKey, uiId) {
     arrayOfTargetPrices = arrayOfTargetPrices.sort((a,b) => b.price-a.price);
-    arrayOfCurrentPrices = arrayOfCurrentPrices.sort((a,b) => b-a);
+    arrayOfCurrentPrices = arrayOfCurrentPrices.sort((a,b) => b.price-a.price);
     var filteredArrayOfTargetPrices = [];
     
     for (var i=0; i<arrayOfTargetPrices.length; i++) {
       var item1 = arrayOfTargetPrices[i];
       var flag = true;
       
-      arrayOfCurrentPrices.forEach(item2 => {
-        console.log(item2.price , item1.price, '&&', item1.count , item2.my_count);
-        console.log(item2.price == item1.price && item1.count >= item2.my_count);
-      
+      arrayOfCurrentPrices.forEach(item2 => {      
         if (item2.price == item1.price && item2.my_count >= item1.count) {
           flag = false
         }
@@ -100,12 +97,14 @@ function urlForSellCreator (arrayOfTargetPrices, arrayOfCurrentPrices, minimalPr
         filteredArrayOfTargetPrices.push(item1);
       }
     }
-    targetItem = filteredArrayOfTargetPrices[0];
+    console.log(filteredArrayOfTargetPrices);
+    targetItem = filteredArrayOfTargetPrices.sort((a,b) => {
+        return b-a;
+    })[0];
 
     if (targetItem == undefined) {
-        return;
+        return null;
     }
-    console.log('\n\n\n', arrayOfTargetPrices, '\n', targetItem);
 
     const price = +targetItem.price < +minimalPriceOnMarket ? (+minimalPriceOnMarket - 1) : +targetItem.price;
 
@@ -138,9 +137,13 @@ function sellItem(data, configObject, market, inventory) {
             console.log(`Have different variant of price: ${JSON.stringify(item)}`)
         })
         const minimalPriceOnMarket = checkMinimalPrice(data.offers);
-        const price = +configObject.priceSeel < +minimalPriceOnMarket ? (+minimalPriceOnMarket - 1) : +configObject.priceSeel;
+        //const price = +configObject.priceSeel < +minimalPriceOnMarket ? (+minimalPriceOnMarket - 1) : +configObject.priceSeel;
 
         options = urlForSellCreator(configObject.prices, data.offers, minimalPriceOnMarket, market.key, targetItem[0].ui_id);
+
+        if(!options) {
+            return;
+        }
 /*
         const host = 'market.csgo.com';
         const path = `/api/SetPrice/${targetItem[0].ui_id}/${price}/?key=${market.key}`;
