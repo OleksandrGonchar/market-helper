@@ -47,7 +47,9 @@ function chekDataOnMarket(configObject, market, inventory) {
         const req = https.get(options, function(res) {
             // Buffer the body entirely for processing as a whole.
             let bodyChunks = [];
-            res.on('data', function(chunk) {
+            res.on('error', function(err){
+                console.log(err);
+            }).on('data', function(chunk) {
                 // You can process streamed parts here...
                 bodyChunks.push(chunk);
             }).on('end', function() {
@@ -61,10 +63,6 @@ function chekDataOnMarket(configObject, market, inventory) {
                         console.log(e);
                     }
                 };
-            });
-            
-            res.on('error', function(err){
-                console.log(err);
             });
         });
     }
@@ -142,20 +140,17 @@ function sellItem(data, configObject, market, inventory) {
         options = urlForSellCreator(configObject.prices, data.offers, minimalPriceOnMarket, market.key, targetItem[0].ui_id);
 
         if(!options) {
+            console.log(`Error: Options is empty.
+                ${options}
+            `);
             return;
         }
-/*
-        const host = 'market.csgo.com';
-        const path = `/api/SetPrice/${targetItem[0].ui_id}/${price}/?key=${market.key}`;
-        const options = {
-            host: host,
-            path: path
-        };
-*/
 
         https.get(options, function(res) {
             let bodyChunks = [];
-            res.on('data', function(chunk) {
+            res.on('error', function(err){
+                console.log(err);
+            }).on('data', function(chunk) {
                 bodyChunks.push(chunk);
             }).on('end', function() {
                 const responce = JSON.parse(Buffer.concat(bodyChunks));
@@ -163,10 +158,6 @@ function sellItem(data, configObject, market, inventory) {
                 if (responce.result == 1) {
                     console.log(`Item with id ${responce.item_id} set for sell with price ${responce.price}p`);
                 }
-            });
-            
-            res.on('error', function(err){
-                console.log(err);
             });
         });
     };
@@ -188,16 +179,19 @@ function updateInventory(market) {
 
     setTimeout(function() {
         try {
+            console.log(`Start update`);
             https.get(options, function(res) {
                 let bodyChunks = [];
-                res.on('data', function(chunk) {
+
+                res.on('error', function(err){
+                    console.log(`Error in update database 
+                    ${err}`);
+                }).on('data', function(chunk) {
+                    console.log('Data')
                     bodyChunks.push(chunk);
                 }).on('end', function() {
+                    console.log('End')
                     const body = Buffer.concat(bodyChunks);
-                });
-                
-                res.on('error', function(err){
-                    console.log(err);
                 });
             });
         } catch(e) {
@@ -231,6 +225,10 @@ function dataHendler(data, configObject, market, inventory) {
         let myBuyOffers = 0;
         let iWantSell = 0;
 
+        if (!data.offers || !data.buy_offers) {
+            return;
+        }
+
         configObject.prices.map(ex => {
             //sum of all items i want to byy
             iWantSell += +ex.count;
@@ -253,7 +251,8 @@ function dataHendler(data, configObject, market, inventory) {
             sellItem(data, configObject, market, inventory);
         }
     } catch(e) {
-        console.log(`Error from dataHendler^ ${e}`)
+        console.log(`Error from dataHendler:
+        ${e}`);
     }
 }
 
@@ -270,14 +269,12 @@ function setOrder(configObject, marketObject, market) {
         list[list.length] = function() {
             const req = https.get(options, function(res) {
                 let bodyChunks = [];
-                res.on('data', function(chunk) {
+                res.on('error', function(err){
+                    console.log(err);
+                }).on('data', function(chunk) {
                     bodyChunks.push(chunk);
                 }).on('end', function() {
                     const body = Buffer.concat(bodyChunks);
-                });
-                
-                res.on('error', function(err){
-                    console.log(err);
                 });
             });
         };
@@ -304,32 +301,32 @@ function feelFromDataBase(mlab, market) {
 
     https.get(options, function(res) {
         let bodyChunks = [];
-        res.on('data', function(chunk) {
+
+        res.on('error', function(err){
+            console.log(`Finaly I catch error!!`);
+            console.log(err);
+        }).on('data', function(chunk) {
             bodyChunks.push(chunk);
         }).on('end', function() {
             let inventory;
 
             try {
                 inventory = JSON.parse(Buffer.concat(bodyChunks));
+                mongo.read(url)
+                    .then((data) => {
+                        for (let i = 0; i < data.length; i++) {
+                            let fun = chekDataOnMarket(data[i].data, market, inventory);
+                            list[list.length] = fun;
+                        }
+                        console.log('Run');
+                        runList();
+                    }, err => {
+                        console.log('ERROR: ', err.message);
+                        //reject(err);
+                    })
             } catch(e) {
                 console.log(`Invalid responce: ${e}`);
             }
-            mongo.read(url).then(
-                data => {
-                    for (let i = 0; i < data.length; i++) {
-                        let fun = chekDataOnMarket(data[i].data, market, inventory);
-                        list[list.length] = fun;
-                    }
-                    console.log('Run');
-                    runList();
-                }, err => {
-                    console.log('ERROR: ', err.message);
-                    //reject(err);
-                })
-        });
-        
-        res.on('error', function(err){
-            console.log(err);
         });
     });
 }
