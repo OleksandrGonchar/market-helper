@@ -5,11 +5,13 @@ const market = require('./market-service');
 
 /** Load data from db **/
 router.post('/database', databaseFlow);
+router.options('/database', databaseFlow);
 router.delete('/database', deleteDataFromDatabase);
 router.post('/run', runAppLifeCikle);
 router.post('/task', taskCreator);
 
 function databaseFlow(req, res) {
+    console.log(req.body.user , req.body.key)
     const errorMassage = 'Error: empty pass or username';
     const errorResponce = {
         'error': errorMassage
@@ -25,10 +27,11 @@ function databaseFlow(req, res) {
     let key = req.body.key.trim();
     let user = req.body.user.trim();
     let data = req.body.data;
+    const id = req.body._id;
     let url = `mongodb://${user}:${key}@ds133981.mlab.com:33981/market-helper`;
 
     if(data) {
-        mongo.set(url, data).then(
+        mongo.set(url, data, id).then(
             data => {
                 res.setHeader('Content-Type', 'application/json');
                 res.json(data);
