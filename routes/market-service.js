@@ -392,7 +392,7 @@ keyService.get('keymarket.json')
     .then(data => console.log('wtf!!',data))
     .catch(e=>console.log(e));
 
-runList();//test 
+// runList();//test 
 
 module.exports = {
     add: addToList,
