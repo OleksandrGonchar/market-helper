@@ -15,7 +15,10 @@ function readDataFromDb(url) {
     })
 }
 
-function setItemToCollection(url, data) {
+function setItemToCollection(url, data, id) {
+    if (id) {
+        deleteCollection(url, id);
+    }
     return new Promise((resolve, reject) => {
         mongodb.connect(url, (err, db) => {
             if (err) {
