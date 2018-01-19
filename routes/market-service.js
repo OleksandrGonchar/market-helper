@@ -3,6 +3,11 @@ const https = require("https");
 const mongo = require('./database');
 const keyService = require('./keyService');
 
+const marketTypes = {
+    csgo: 'csgo',
+    pubg: 'pubg'
+};
+
 const intervalTimeOut = 250;//millesecund 
 
 let list = [
@@ -37,7 +42,7 @@ function createDummyFuncForTimeout(seconds) {
 
 function chekDataOnMarket(configObject, market, inventory) {
     return function() {
-        const host = 'market.csgo.com';
+        const host = `market.${configObject.marketType}.com`;
         const path = `/api/ItemInfo/${configObject.id}_${configObject.group}/ru/ru/?key=${market.key}`;
         const options = {
             host: host,
@@ -58,7 +63,7 @@ function chekDataOnMarket(configObject, market, inventory) {
                 list[list.length] = function(){
                     try {
                         let dataObject = JSON.parse(body);
-                        dataHendler(dataObject, configObject, market, inventory);
+                        dataHendler(dataObject, configObject, market, inventory[configObject.marketType]);
                     } catch(e) {
                         console.log(e);
                     }
@@ -69,6 +74,7 @@ function chekDataOnMarket(configObject, market, inventory) {
 }
 
 /**
+ * @param marketType            {String} string with type of market for different markets
  * @param arrayOfTargetPrices   {Array} array of price from mongo databse [{"price":"60","count":"10"},{"price":"65","count":"10"}]
  * @param arrayOfCurrentPrices  {Array} array of prices on market [{"price":"52","count":"54","my_count":"0"},{"price":"53","count":"38","my_count":"0"}]
  * @param minimalPriceOnMarket  {String} minimal price on market
@@ -76,7 +82,7 @@ function chekDataOnMarket(configObject, market, inventory) {
  * @param uiId                  {String} string with ui id for selling items
  * @return                      {Object} object contain host and path for request on market with max price
  */
-function urlForSellCreator (arrayOfTargetPrices, arrayOfCurrentPrices, minimalPriceOnMarket, marketKey, uiId) {
+function urlForSellCreator (marketType, arrayOfTargetPrices, arrayOfCurrentPrices, minimalPriceOnMarket, marketKey, uiId) {
     arrayOfTargetPrices = arrayOfTargetPrices.sort((a,b) => b.price-a.price);
     arrayOfCurrentPrices = arrayOfCurrentPrices.sort((a,b) => b.price-a.price);
     var filteredArrayOfTargetPrices = [];
@@ -109,7 +115,7 @@ function urlForSellCreator (arrayOfTargetPrices, arrayOfCurrentPrices, minimalPr
     console.log(targetItem.price, '<', minimalPriceOnMarket, '?', (minimalPriceOnMarket - 1), ':', targetItem.price);
     console.log('price', price)
 
-    const host = 'market.csgo.com';
+    const host = `market.${marketType}.com`;
     const path = `/api/SetPrice/${uiId}/${price}/?key=${marketKey}`;
     const url = {
         host: host,
@@ -130,14 +136,13 @@ function sellItem(data, configObject, market, inventory) {
     });
 
     if(targetItem.length > 0) {
-        //console.log('\n\n\n\n', configObject, targetItem);
         configObject.prices.map(item => {
             console.log(`Have different variant of price: ${JSON.stringify(item)}`)
         })
         const minimalPriceOnMarket = checkMinimalPrice(data.offers);
         //const price = +configObject.priceSeel < +minimalPriceOnMarket ? (+minimalPriceOnMarket - 1) : +configObject.priceSeel;
 
-        options = urlForSellCreator(configObject.prices, data.offers, minimalPriceOnMarket, market.key, targetItem[0].ui_id);
+        options = urlForSellCreator(configObject.marketType ,configObject.prices, data.offers, minimalPriceOnMarket, market.key, targetItem[0].ui_id);
 
         if(!options) {
             console.log(`Error: Options is empty.
@@ -257,7 +262,7 @@ function dataHendler(data, configObject, market, inventory) {
 }
 
 function setOrder(configObject, marketObject, market) {
-    const host = 'market.csgo.com';
+    const host = `market.${configObject.marketType}.com`;
     const path = `/api/InsertOrder/${configObject.id}/${configObject.group}/${configObject.priceBuy}//?key=${market.key}`;
 
     let targetFunction = function() {
@@ -283,51 +288,63 @@ function setOrder(configObject, marketObject, market) {
     list[list.length] = targetFunction;
 };
 
-function feelFromDataBase(mlab, market) {
-    let url = `mongodb://${mlab.login}:${mlab.key}@ds133981.mlab.com:33981/market-helper`;
-    
-    const host = 'market.csgo.com';
+function takeInventoryFromMarket(marketType, market, timeout) {
+    const host = `market.${marketType}.com`;
     const path = `/api/GetInv/?key=${market.key}`;
     const options = {
         host: host,
         path: path
     }
 
-    //update inventory
-    console.log('start update inventry')
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            console.log('inventory taked :', (new Date()).toString());
+            https.get(options, function(res) {
+                let bodyChunks = [];      
+                    res.on('error', function(err){
+                        console.log(`Finaly I catch error!!`);
+                        console.log(err);
+                    }).on('data', function(chunk) {
+                        bodyChunks.push(chunk);
+                    }).on('end', function() {
+                        let inventory;
+                        try {
+                            inventory = JSON.parse(Buffer.concat(bodyChunks));
+                            resolve(inventory);
+                        } catch(e) {
+                            console.error(e);
+                        }
+                    })
+                });
+          }, timeout);
+        })  
+    };
+
+function feelFromDataBase(mlab, market) {
+    let url = `mongodb://${mlab.login}:${mlab.key}@ds133981.mlab.com:33981/market-helper`;
     updateInventory(market);
-    //create dummy function for timeout
     createDummyFuncForTimeout(10);
 
-    https.get(options, function(res) {
-        let bodyChunks = [];
-
-        res.on('error', function(err){
-            console.log(`Finaly I catch error!!`);
-            console.log(err);
-        }).on('data', function(chunk) {
-            bodyChunks.push(chunk);
-        }).on('end', function() {
-            let inventory;
-
-            try {
-                inventory = JSON.parse(Buffer.concat(bodyChunks));
-                mongo.read(url)
-                    .then((data) => {
-                        for (let i = 0; i < data.length; i++) {
-                            let fun = chekDataOnMarket(data[i].data, market, inventory);
-                            list[list.length] = fun;
-                        }
-                        console.log('Run');
-                        runList();
-                    }, err => {
-                        console.log('ERROR: ', err.message);
-                        //reject(err);
-                    })
-            } catch(e) {
-                console.log(`Invalid responce: ${e}`);
-            }
-        });
+    Promise.all([
+        takeInventoryFromMarket(marketTypes.csgo, market, 500),
+        takeInventoryFromMarket(marketTypes.pubg, market, 1000)
+    ]).then((result) => {
+        const inventory = {
+            csgo: result[0],
+            pubg: result[1]
+        };
+        mongo.read(url)
+            .then((data) => {
+                for (let i = 0; i < data.length; i++) {
+                    let fun = chekDataOnMarket(data[i].data, market, inventory);
+                    list[list.length] = fun;
+                }
+                console.log('Run');
+                runList();
+            }, err => {
+                console.log('ERROR: ', err.message);
+                //reject(err);
+            });
     });
 }
 
