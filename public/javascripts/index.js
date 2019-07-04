@@ -19,19 +19,26 @@ function postToDatabase(url, data, method) {
     });
 };
 
-function getDataFromDB() {
-    var userName = document.getElementById('userName').value;
-    var userPassword = document.getElementById('userPassword').value;
+async function getDataFromDB() {
+    const userName = document.getElementById('userName').value;
+    const userPassword = document.getElementById('userPassword').value;
+    const body = {
+        user: userName,
+        key: userPassword
+    };
+    const headers = {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+    };
 
-    postToDatabase('/api/database', {
-        'user': userName,
-        'key': userPassword
-    }, 'POST').then(
-        response = function(response){console.log('Data load: ', response)},
-        error = function(e) {
-            console.log('Rejected ', e)
-        }
-    );
+    const req = await fetch('/api/database', {
+        body: JSON.stringify(body),
+        headers,
+        'method': 'POST'
+    }).catch(fail => console.log('Fail responce:', fail));
+
+    const responceData = await req.json();
+    console.log('Data responce:', responceData);
 };
 
 function setDataClickListener() {
