@@ -36,10 +36,14 @@ function databaseFlow(req, res) {
         mongo.set(url, data, id).then(
             data => {
                 res.setHeader('Content-Type', 'application/json');
+                res.header("Access-Control-Allow-Origin", "*");
+                res.header("Access-Control-Allow-Headers", "Content-Type, X-Requested-With");
                 res.json(data);
             }, err => {
                 console.log('ERROR: ', err.message);
                 res.setHeader('Content-Type', 'application/json');
+                res.header("Access-Control-Allow-Origin", "*");
+                res.header("Access-Control-Allow-Headers", "Content-Type, X-Requested-With");
                 res.status(500);
                 res.json({
                     'error': err
@@ -49,10 +53,14 @@ function databaseFlow(req, res) {
         mongo.read(url).then(
             data => {
                 res.setHeader('Content-Type', 'application/json');
+                res.header("Access-Control-Allow-Origin", "*");
+                res.header("Access-Control-Allow-Headers", "Content-Type, X-Requested-With");
                 res.json(data);
             }, err => {
                 console.log('ERROR: ', err.message);
                 res.setHeader('Content-Type', 'application/json');
+                res.header("Access-Control-Allow-Origin", "*");
+                res.header("Access-Control-Allow-Headers", "Content-Type, X-Requested-With");
                 res.status(404);
                 res.json({
                     'error': 'Authentication failed.'
