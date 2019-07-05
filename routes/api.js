@@ -17,6 +17,7 @@ function updateResponceHeader(res) {
     res.header("Access-Control-Allow-Origin", "http://localhost");
     res.header("Access-Control-Allow-Methods", ["POST", "GET", "OPTIONS"]);
     res.header("Access-Control-Allow-Headers", ["X-PINGOTHER", "Content-Type"]);
+    res.status(200);
 
     return res;
 }
