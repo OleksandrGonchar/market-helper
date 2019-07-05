@@ -14,7 +14,7 @@ function updateResponceHeader(res) {
     res.setHeader('Content-Type', 'application/json');
     res.header("Access-Control-Allow-Headers", "Content-Type");
     res.header("Access-Control-Allow-Origin", "*");
-    res.header("Access-Control-Allow-Methods", ["POST", "GET", "OPTIONS"]);
+    res.header("Access-Control-Allow-Methods", ["POST", "GET", "OPTIONS", "MIME"]);
 
     return res;
 }
