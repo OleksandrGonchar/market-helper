@@ -12,12 +12,10 @@ router.post('/task', taskCreator);
 
 function updateResponceHeader(res) {
     res.setHeader('Content-Type', 'application/json');
-    res.header("Access-Control-Allow-Origin", "*");
     res.header("Access-Control-Allow-Headers", "Content-Type, X-Requested-With", "X-OAuth-Scopes", "X-Accepted-OAuth-Scopes");
     res.header("Access-Control-Allow-Origin", "http://localhost:3000");
     res.header("Access-Control-Allow-Methods", ["POST", "GET", "OPTIONS"]);
     res.header("Access-Control-Allow-Headers", ["X-PINGOTHER", "Content-Type"]);
-    res.status(200);
 
     return res;
 }
@@ -33,6 +31,7 @@ function databaseFlow(req, res) {
         res.status(500);
         updateResponceHeader(res);
         res.json(errorResponce);
+
         return console.log(errorMassage);
     }
 
@@ -59,6 +58,7 @@ function databaseFlow(req, res) {
         mongo.read(url).then(
             data => {
                 updateResponceHeader(res);
+                res.status(200);
                 res.json(data);
             }, err => {
                 updateResponceHeader(res);
