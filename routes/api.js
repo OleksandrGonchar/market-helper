@@ -30,9 +30,7 @@ function databaseFlow(req, res) {
 
     if (typeof req.body !== 'object' || !req.body.user || !req.body.key) {
         res.status(500);
-        res.setHeader('Content-Type', 'application/json');
-        res.header("Access-Control-Allow-Origin", "*");
-        res.header("Access-Control-Allow-Headers", "Content-Type, X-Requested-With");
+        updateResponceHeader(res);
         res.json(errorResponce);
         return console.log(errorMassage);
     }
