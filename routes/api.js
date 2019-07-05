@@ -28,7 +28,7 @@ function databaseFlow(req, res) {
     };
 
     if (typeof req.body !== 'object' || !req.body.user || !req.body.key) {
-        res.status(500);
+        res.status(200);
         updateResponceHeader(res);
         res.json(errorResponce);
 
