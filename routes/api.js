@@ -10,6 +10,17 @@ router.delete('/database', deleteDataFromDatabase);
 router.post('/run', runAppLifeCikle);
 router.post('/task', taskCreator);
 
+function updateResponceHeader(res) {
+    res.setHeader('Content-Type', 'application/json');
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Headers", "Content-Type, X-Requested-With", "X-OAuth-Scopes", "X-Accepted-OAuth-Scopes");
+    res.header("Access-Control-Allow-Origin", "http://localhost:3000");
+    res.header("Access-Control-Allow-Methods", ["POST"]);
+    res.header("Access-Control-Allow-Headers", ["X-PINGOTHER", "Content-Type"]);
+
+    return res;
+}
+
 function databaseFlow(req, res) {
     console.log(req.body.user , req.body.key)
     const errorMassage = 'Error: empty pass or username';
@@ -35,15 +46,11 @@ function databaseFlow(req, res) {
     if(data) {
         mongo.set(url, data, id).then(
             data => {
-                res.setHeader('Content-Type', 'application/json');
-                res.header("Access-Control-Allow-Origin", "*");
-                res.header("Access-Control-Allow-Headers", "Content-Type, X-Requested-With");
+                updateResponceHeader(res);
                 res.json(data);
             }, err => {
                 console.log('ERROR: ', err.message);
-                res.setHeader('Content-Type', 'application/json');
-                res.header("Access-Control-Allow-Origin", "*");
-                res.header("Access-Control-Allow-Headers", "Content-Type, X-Requested-With");
+                updateResponceHeader(res);
                 res.status(500);
                 res.json({
                     'error': err
@@ -52,18 +59,10 @@ function databaseFlow(req, res) {
     } else {
         mongo.read(url).then(
             data => {
-                res.setHeader('Content-Type', 'application/json');
-                res.header("Access-Control-Allow-Origin", "*");
-                res.header("Access-Control-Allow-Headers", "Content-Type, X-Requested-With", "X-OAuth-Scopes", "X-Accepted-OAuth-Scopes");
-                res.header("Access-Control-Allow-Origin", "http://localhost:3000");
-                res.header("Access-Control-Allow-Methods", ["POST"]);
-                res.header("Access-Control-Allow-Headers", ["X-PINGOTHER", "Content-Type"]);
+                updateResponceHeader(res);
                 res.json(data);
             }, err => {
-                console.log('ERROR: ', err.message);
-                res.setHeader('Content-Type', 'application/json');
-                res.header("Access-Control-Allow-Origin", "*");
-                res.header("Access-Control-Allow-Headers", "Content-Type, X-Requested-With");
+                updateResponceHeader(res);
                 res.status(404);
                 res.json({
                     'error': 'Authentication failed.'
