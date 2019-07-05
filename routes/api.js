@@ -12,8 +12,8 @@ router.post('/task', taskCreator);
 
 function updateResponceHeader(res) {
     res.setHeader('Content-Type', 'application/json');
-    res.header("Access-Control-Allow-Headers", "Content-Type, X-Requested-With", "X-OAuth-Scopes", "X-Accepted-OAuth-Scopes");
-    res.header("Access-Control-Allow-Origin", "http://localhost:3000");
+    res.header("Access-Control-Allow-Headers", "Content-Type");
+    res.header("Access-Control-Allow-Origin", "*");
     res.header("Access-Control-Allow-Methods", ["POST", "GET", "OPTIONS"]);
 
     return res;
