@@ -53,8 +53,9 @@ function databaseFlow(req, res) {
         mongo.read(url).then(
             data => {
                 res.setHeader('Content-Type', 'application/json');
-                res.header("Access-Control-Allow-Origin", "*");
                 res.header("Access-Control-Allow-Headers", "Content-Type, X-Requested-With");
+                res.header("Access-Control-Allow-Origin", "*");
+                res.header("Origin", "http://localhost:3000");
                 res.json(data);
             }, err => {
                 console.log('ERROR: ', err.message);
