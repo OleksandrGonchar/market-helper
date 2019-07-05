@@ -15,7 +15,7 @@ function updateResponceHeader(res) {
     res.header("Access-Control-Allow-Origin", "*");
     res.header("Access-Control-Allow-Headers", "Content-Type, X-Requested-With", "X-OAuth-Scopes", "X-Accepted-OAuth-Scopes");
     res.header("Access-Control-Allow-Origin", "http://localhost:3000");
-    res.header("Access-Control-Allow-Methods", ["POST"]);
+    res.header("Access-Control-Allow-Methods", ["POST", "GET", "OPTIONS"]);
     res.header("Access-Control-Allow-Headers", ["X-PINGOTHER", "Content-Type"]);
 
     return res;
