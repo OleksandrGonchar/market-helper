@@ -22,14 +22,13 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 //app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.static(path.join(__dirname, 'client/build')));
-    
+
+app.use('/', routes);
+app.use('/api', api);
 // Handle React routing, return all requests to React app
 app.use('/react', function(req, res) {
   res.sendFile(path.join(__dirname, 'client/build', 'index.html'));
 });
-
-app.use('/', routes);
-app.use('/api', api);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
