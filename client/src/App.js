@@ -2,6 +2,19 @@ import React from 'react';
 import logo from './logo.svg';
 import './App.css';
 
+componentDidMount() {
+  const headers = {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json'
+  };
+  fetch('/api/database', {
+    headers,
+    'method': 'POST'
+  }).catch(e => console.log())
+  .then(data => console.log(data));
+
+}
+
 function App() {
   return (
     <div className="App">

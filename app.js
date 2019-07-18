@@ -26,11 +26,6 @@ app.use(express.static(path.join(__dirname, 'client/build')));
 app.use('/', routes);
 app.use('/api', api);
 
-// Handle React routing, return all requests to React app
-app.use('/react', function(req, res) {
-  res.sendFile(path.join(__dirname, 'client/build', 'index.html'));
-});
-
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
   const err = new Error('Not Found');
