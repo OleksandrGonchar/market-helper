@@ -10,6 +10,15 @@ router.delete('/database', deleteDataFromDatabase);
 router.post('/run', runAppLifeCikle);
 router.post('/task', taskCreator);
 
+function updateResponceHeader(res) {
+    res.setHeader('Content-Type', 'application/json');
+    res.header("Access-Control-Allow-Headers", "Content-Type");
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Methods", ["POST", "GET", "OPTIONS"]);
+
+    return res;
+}
+
 function databaseFlow(req, res) {
     console.log(req.body.user , req.body.key)
     const errorMassage = 'Error: empty pass or username';
@@ -18,9 +27,10 @@ function databaseFlow(req, res) {
     };
 
     if (typeof req.body !== 'object' || !req.body.user || !req.body.key) {
-        res.status(500);
-        res.setHeader('Content-Type', 'application/json');
+        res.status(200);
+        updateResponceHeader(res);
         res.json(errorResponce);
+
         return console.log(errorMassage);
     }
 
@@ -33,11 +43,11 @@ function databaseFlow(req, res) {
     if(data) {
         mongo.set(url, data, id).then(
             data => {
-                res.setHeader('Content-Type', 'application/json');
+                updateResponceHeader(res);
                 res.json(data);
             }, err => {
                 console.log('ERROR: ', err.message);
-                res.setHeader('Content-Type', 'application/json');
+                updateResponceHeader(res);
                 res.status(500);
                 res.json({
                     'error': err
@@ -46,11 +56,11 @@ function databaseFlow(req, res) {
     } else {
         mongo.read(url).then(
             data => {
-                res.setHeader('Content-Type', 'application/json');
+                updateResponceHeader(res);
+                res.status(200);
                 res.json(data);
             }, err => {
-                console.log('ERROR: ', err.message);
-                res.setHeader('Content-Type', 'application/json');
+                updateResponceHeader(res);
                 res.status(404);
                 res.json({
                     'error': 'Authentication failed.'
