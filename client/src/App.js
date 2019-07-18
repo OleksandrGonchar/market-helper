@@ -12,7 +12,6 @@ componentDidMount = () => {
     'method': 'POST'
   }).catch(e => console.log())
   .then(data => console.log(data));
-
 }
 
 function App() {
