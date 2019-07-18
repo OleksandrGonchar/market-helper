@@ -2,7 +2,7 @@ import React from 'react';
 import logo from './logo.svg';
 import './App.css';
 
-componentDidMount = () => {
+const componentDidMount = () => {
   const headers = {
       'Accept': 'application/json',
       'Content-Type': 'application/json'
