@@ -2,7 +2,7 @@ import React from 'react';
 import logo from './logo.svg';
 import './App.css';
 
-componentDidMount() {
+componentDidMount = () => {
   const headers = {
       'Accept': 'application/json',
       'Content-Type': 'application/json'
@@ -16,6 +16,7 @@ componentDidMount() {
 }
 
 function App() {
+  componentDidMount();
   return (
     <div className="App">
       <header className="App-header">
