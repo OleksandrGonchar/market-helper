@@ -11,7 +11,7 @@ export default {
             'Content-Type': 'application/json',
         };
     
-        const responce = await fetch('http://market-store-helper.herokuapp.com/api/database', {
+        const responce = await fetch('https://market-store-helper.herokuapp.com/api/database', {
             body: JSON.stringify(body),
             headers,
             mode: 'cors',
