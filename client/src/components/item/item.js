@@ -10,7 +10,21 @@ export default class Item extends React.Component {
             edit: false
         };
     }
-    tooggle() {
+    componentDidMount() {
+        if (!this.props.item) {
+            console.log('change to edit');
+            this.tooggleEditState();
+        } else {
+            this.item = {
+                _id: this.props.item._id,
+                data: {
+                    ...this.props.item.data,
+                    prices: this.props.item.data.prices.map(item => ({...item}))
+                }
+            }
+        }
+    }
+    tooggleEditState() {
         this.setState({
             edit: !this.state.edit
         });
@@ -19,17 +33,28 @@ export default class Item extends React.Component {
         return this.state.edit ? 'Cancel' : 'Edit'
     }
 
-    updateItem() {
-        this.props.updateItem(this.props.item);
+    updateItem(item = this.props.item) {
+        this.props.updateItem(item);
+    }
+
+    itemEditedByUser(item) {
+        const updatedItem = {
+            _id: item._id,
+            data: {
+                ...item.data,
+                prices: item.data.prices.map(item => ({...item}))
+            }
+        };
+        this.item = updatedItem;
     }
 
     render() {
         return (
             <div>
-                { !this.state.edit && <ItemView item={this.props.item} /> }
-                { this.state.edit && <ItemEdit item={this.props.item} /> }
-                { this.state.edit && <button onClick={this.updateItem.bind(this)} >Save</button> }
-                <button onClick={this.tooggle.bind(this)}>{this.getButtonText.call(this)}</button>
+                { !this.state.edit && this.item && <ItemView item={this.item} /> }
+                { this.state.edit && <ItemEdit item={this.item} itemEditedByUser={this.itemEditedByUser.bind(this)} /> }
+                { this.state.edit && <button onClick={() => this.updateItem(this.item) } >Save</button> }
+                <button onClick={this.tooggleEditState.bind(this)}>{this.getButtonText.call(this)}</button>
             </div>
         );
     }

@@ -7,12 +7,13 @@ export default class ItemLIst extends React.Component {
     constructor() {
         super();
         this.state = {
-            viewList: []
+            viewList: [],
+            showCreateNewItem: false
         };
         this.getData();
     }
     async getData() {
-        this.items = await server.getItemLIst();
+        this.items = await server.getItemLIst().catch(e => console.log(e)) || [];
         this.setState({
             viewList: [...this.items]
         });
@@ -39,7 +40,13 @@ export default class ItemLIst extends React.Component {
     }
 
     updateItem(item) {
-        console.log(item);
+        console.log('updateItem', item);
+    }
+
+    toggleNewItem() {
+        this.setState({
+            showCreateNewItem: !this.state.showCreateNewItem
+        })
     }
 
     render() {
@@ -54,6 +61,7 @@ export default class ItemLIst extends React.Component {
                             <option value="pubg">PUBG</option>
                             <option value="dota">DOTA</option>
                         </select>
+                        <button onClick={() => this.toggleNewItem()} >Creat new item</button>
                     </div>
                     <div>
                         <p>Total {this.state.viewList.length} items</p>
@@ -62,12 +70,18 @@ export default class ItemLIst extends React.Component {
                 {
                     this.state.viewList.length > 0 &&
                     <ol>
-                    {this.state.viewList.map((item, index) => (
+                    {!this.state.showCreateNewItem && this.state.viewList.map((item, index) => (
                         <li key={index.toString()}>
                             <Item item={item} updateItem={this.updateItem.bind(this)} />
                         </li>
                     ))}
                     </ol>
+                }
+                {
+                    this.state.showCreateNewItem && 
+                    <div>Hm.....
+                        <Item item={null} updateItem={this.updateItem.bind(this)} />
+                    </div>
                 }
                 {
                     this.state.viewList.length === 0 &&
